@@ -75,8 +75,9 @@ class PedidoResource extends Resource
                         ->disabled()
                         ->dehydrateStateUsing(fn ($state) => $state ? number_format($state, 2, '.', '') : 0),
                 ])
-                ->columns(3)
-                ->required(),
+                ->required()
+                ->addable(false)
+                ->deletable(false),
         ]);
 }
 
