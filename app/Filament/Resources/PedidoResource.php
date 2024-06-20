@@ -68,7 +68,7 @@ class PedidoResource extends Resource
                             $precio = $producto ? floatval($producto->precio) : 0;
                             $total = $precio * $cantidad;
                             $set('total', $total);
-                            self::updatePedidoTotal($set, $get);
+
                         }),
                     TextInput::make('total')
                         ->label('Total')
@@ -77,21 +77,11 @@ class PedidoResource extends Resource
                 ])
                 ->columns(3)
                 ->required(),
-            TextInput::make('total_pedido')
-                ->label('Total del Pedido')
-                ->disabled(),
         ]);
 }
 
 
-public static function updatePedidoTotal(callable $set, callable $get)
-{
-    $detallesPedidos = $get('detallesPedidos') ?? [];
-    $totalPedido = array_reduce($detallesPedidos, function ($carry, $detalle) {
-        return $carry + ($detalle['total'] ?? 0);
-    }, 0);
-    $set('total_pedido', number_format($totalPedido, 2, '.', ''));
-}
+
 
 public static function table(Table $table): Table
 {
@@ -99,10 +89,9 @@ public static function table(Table $table): Table
         ->columns([
             TextColumn::make('comprador.nombre')->label('Comprador')->sortable()->searchable(),
             TextColumn::make('fecha_pedido')->label('Fecha del Pedido')->dateTime('d/m/Y')->sortable(),
-            TextColumn::make('detallesPedidos.id_producto')->label('Producto')->sortable(),
+            TextColumn::make('detallesPedidos.producto.nombre')->label('Producto')->sortable(),
             TextColumn::make('detallesPedidos.cantidad')->label('Cantidad')->sortable(),
             TextColumn::make('detallesPedidos.total')->label('Total del Producto')->sortable(),
-            TextColumn::make('total_pedido')->label('Total del Pedido')->sortable(),
         ])
 
             ->filters([

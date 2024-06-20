@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_comprador')->constrained('compradors');
             $table->date('fecha_pedido');
-            $table->decimal('total_pedido', 8, 2);
             $table->timestamps();
         });
     }

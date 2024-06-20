@@ -10,17 +10,8 @@ class Pedido extends Model
     protected $fillable = [
         'id_comprador',
         'fecha_pedido',
-        'total_pedido',
     ];
 
-    public static function boot()
-    {
-        parent::boot();
-
-        static::saving(function ($pedido) {
-            $pedido->total_pedido = $pedido->detallesPedidos->sum('total');
-        });
-    }
 
     public function detallesPedidos()
     {
