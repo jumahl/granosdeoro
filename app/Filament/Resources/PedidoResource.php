@@ -46,21 +46,21 @@ class PedidoResource extends Resource
                 ]),
             DatePicker::make('fecha_pedido')
                 ->required(),
-                Select::make('id_producto')
-                ->label('Producto')
-                ->options(Producto::all()->pluck('nombre', 'id'))
-                ->reactive()
-                ->required()
-                ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                    $producto = Producto::find($state);
-                    $cantidad = $get('cantidad');
-                    if ($producto && $cantidad) {
-                        $set('total', $producto->precio * $cantidad);
-                    } else {
-                        $set('total', 0);
-                    }
-                })
-                ->default(fn ($record) => optional($record->detallesPedidos->first())->id_producto),
+Select::make('id_producto')
+    ->label('Producto')
+    ->options(Producto::all()->pluck('nombre', 'id'))
+    ->reactive()
+    ->required()
+    ->afterStateUpdated(function ($state, callable $get, callable $set) {
+        $producto = Producto::find($state);
+        $cantidad = $get('cantidad');
+        if ($producto && $cantidad) {
+            $set('total', $producto->precio * $cantidad);
+        } else {
+            $set('total', 0);
+        }
+    }),
+
                     TextInput::make('cantidad')
                         ->numeric()
                         ->minValue(1)
@@ -105,6 +105,7 @@ public static function table(Table $table): Table
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
