@@ -35,6 +35,7 @@ class PedidoResource extends Resource
                 ->label('Comprador')
                 ->relationship('comprador', 'nombre')
                 ->searchable()
+                ->required()
                 ->preload()
                 ->createOptionForm([
                     TextInput::make('nombre')
@@ -45,14 +46,21 @@ class PedidoResource extends Resource
                 ]),
             DatePicker::make('fecha_pedido')
                 ->required(),
-            Repeater::make('detallesPedidos')
-                ->relationship()
-                ->schema([
-                    Select::make('id_producto')
-                        ->label('Producto')
-                        ->options(Producto::all()->pluck('nombre', 'id'))
-                        ->reactive()
-                        ->required(),
+                Select::make('id_producto')
+                ->label('Producto')
+                ->options(Producto::all()->pluck('nombre', 'id'))
+                ->reactive()
+                ->required()
+                ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                    $producto = Producto::find($state);
+                    $cantidad = $get('cantidad');
+                    if ($producto && $cantidad) {
+                        $set('total', $producto->precio * $cantidad);
+                    } else {
+                        $set('total', 0);
+                    }
+                })
+                ->default(fn ($record) => optional($record->detallesPedidos->first())->id_producto),
                     TextInput::make('cantidad')
                         ->numeric()
                         ->minValue(1)
@@ -60,29 +68,24 @@ class PedidoResource extends Resource
                             $producto = Producto::find($get('id_producto'));
                             return $producto ? $producto->cantidad_en_existencia : null;
                         })
-                        ->reactive()
+                        ->label('Cantidad')
                         ->required()
-                        ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set, callable $get) {
                             $producto = Producto::find($get('id_producto'));
-                            $cantidad = intval($get('cantidad'));
-                            $precio = $producto ? floatval($producto->precio) : 0;
-                            $total = $precio * $cantidad;
-                            $set('total', $total);
-
+                            $cantidad = $get('cantidad');
+                            if ($producto && $cantidad) {
+                                $set('total', $producto->precio * $cantidad);
+                            } else {
+                                $set('total', 0);
+                            }
                         }),
                     TextInput::make('total')
                         ->label('Total')
                         ->disabled()
                         ->dehydrateStateUsing(fn ($state) => $state ? number_format($state, 2, '.', '') : 0),
-                ])
-                ->required()
-                ->addable(false)
-                ->deletable(false),
-        ]);
-}
-
-
-
+                ]);
+        }
 
 public static function table(Table $table): Table
 {
@@ -90,9 +93,11 @@ public static function table(Table $table): Table
         ->columns([
             TextColumn::make('comprador.nombre')->label('Comprador')->sortable()->searchable(),
             TextColumn::make('fecha_pedido')->label('Fecha del Pedido')->dateTime('d/m/Y')->sortable(),
-            TextColumn::make('detallesPedidos.producto.nombre')->label('Producto')->sortable(),
-            TextColumn::make('detallesPedidos.cantidad')->label('Cantidad')->sortable(),
-            TextColumn::make('detallesPedidos.total')->label('Total del Producto')->sortable(),
+            TextColumn::make('detallesPedidos.id_producto')->label('Producto')->getStateUsing(function ($record) {
+                return optional($record->detallesPedidos->first()->producto)->nombre;
+            })->sortable()->searchable(),
+            TextColumn::make('cantidad')->label('Cantidad')->sortable(),
+            TextColumn::make('total')->label('Total del Producto')->sortable(),
         ])
 
             ->filters([

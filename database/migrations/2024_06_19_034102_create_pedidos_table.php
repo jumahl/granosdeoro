@@ -12,10 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pedidos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('id_comprador')->constrained('compradors');
-            $table->date('fecha_pedido');
-            $table->timestamps();
+        $table->id();
+        $table->unsignedBigInteger('id_comprador');
+        $table->date('fecha_pedido');
+        $table->integer('cantidad');
+        $table->decimal('total', 10, 2);
+        $table->timestamps();
+
+        $table->foreign('id_comprador')->references('id')->on('compradors')->onDelete('cascade');
+
         });
     }
 
