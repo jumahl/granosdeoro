@@ -8,11 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class DetallePedido extends Model
 {
     protected $fillable = [
+
+        'id_pedido',
         'id_producto',
         'cantidad',
         'total',
-        'id_pedido',
+
     ];
+
 
     public static function boot()
     {
