@@ -31,37 +31,37 @@ class PedidoResource extends Resource
     {
         return $form
         ->schema([
-            Select::make('id_comprador')
-                ->label('Comprador')
-                ->relationship('comprador', 'nombre')
-                ->searchable()
-                ->required()
-                ->preload()
-                ->createOptionForm([
-                    TextInput::make('nombre')
-                        ->required()
-                        ->maxLength(100),
-                    TextInput::make('direccion'),
-                    TextInput::make('contacto'),
-                ]),
-            DatePicker::make('fecha_pedido')
-                ->required(),
-Select::make('id_producto')
-    ->label('Producto')
-    ->options(Producto::all()->pluck('nombre', 'id'))
-    ->reactive()
-    ->required()
-    ->afterStateUpdated(function ($state, callable $get, callable $set) {
-        $producto = Producto::find($state);
-        $cantidad = $get('cantidad');
-        if ($producto && $cantidad) {
-            $set('total', $producto->precio * $cantidad);
-        } else {
-            $set('total', 0);
-        }
-    }),
-
-                    TextInput::make('cantidad')
+            
+                Select::make('id_comprador')
+                    ->label('Comprador')
+                    ->relationship('comprador', 'nombre')
+                    ->searchable()
+                    ->required()
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('nombre')
+                            ->required()
+                            ->maxLength(100),
+                        TextInput::make('direccion'),
+                        TextInput::make('contacto'),
+                    ]),
+                DatePicker::make('fecha_pedido')
+                    ->required(),
+                Select::make('id_producto')
+                    ->label('Producto')
+                    ->options(Producto::all()->pluck('nombre', 'id'))
+                    ->reactive()
+                    ->required()
+                    ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                        $producto = Producto::find($state);
+                        $cantidad = $get('cantidad');
+                        if ($producto && $cantidad) {
+                            $set('total', $producto->precio * $cantidad);
+                        } else {
+                            $set('total', 0);
+                        }
+                    }),
+                TextInput::make('cantidad')
                         ->numeric()
                         ->minValue(1)
                         ->maxValue(function (callable $get) {
@@ -84,8 +84,8 @@ Select::make('id_producto')
                         ->label('Total')
                         ->disabled()
                         ->dehydrateStateUsing(fn ($state) => $state ? number_format($state, 2, '.', '') : 0),
-                ]);
-        }
+            ]);
+    }
 
 public static function table(Table $table): Table
 {
