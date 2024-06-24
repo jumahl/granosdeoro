@@ -2,11 +2,10 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ProductoResource\Pages;
-use App\Filament\Resources\ProductoResource\RelationManagers;
-use App\Models\Producto;
+use App\Filament\Resources\CompradorResource\Pages;
+use App\Filament\Resources\CompradorResource\RelationManagers;
+use App\Models\Comprador;
 use Filament\Forms;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -16,31 +15,25 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ProductoResource extends Resource
+class CompradorResource extends Resource
 {
-    protected static ?string $model = Producto::class;
-    protected static ?string $navigationGroup = 'Administrador';
-
-    protected static ?string $navigationIcon = 'heroicon-s-plus-circle';
-    protected static ?int $navigationSort = 3;
+    protected static ?string $model = Comprador::class;
+    protected static ?string $navigationGroup = 'Pedidos';
+    protected static ?string $navigationLabel = 'Compradores';
+    
+    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationIcon = 'heroicon-o-user';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
-            TextInput::make('nombre')
+                TextInput::make('nombre')
                 ->required()
                 ->maxLength(100),
-            Textarea::make('descripcion')
-                ->required(),
-            TextInput::make('precio')
-                ->required()
-                ->numeric(),
-            TextInput::make('cantidad_en_existencia')
-                ->required()
-                ->numeric()
-                ->minValue(1),
+                TextInput::make('direccion'),
+                TextInput::make('contacto'),
+                
             ]);
     }
 
@@ -48,10 +41,9 @@ class ProductoResource extends Resource
     {
         return $table
             ->columns([
-                //
                 TextColumn::make('nombre')->sortable()->searchable(),
-                TextColumn::make('precio')->sortable(),
-                TextColumn::make('cantidad_en_existencia')->sortable(),
+                TextColumn::make('direccion')->sortable(),
+                TextColumn::make('contacto')->sortable(),
                 
             ])
             ->filters([
@@ -78,9 +70,9 @@ class ProductoResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProductos::route('/'),
-            'create' => Pages\CreateProducto::route('/create'),
-            'edit' => Pages\EditProducto::route('/{record}/edit'),
+            'index' => Pages\ListCompradors::route('/'),
+            'create' => Pages\CreateComprador::route('/create'),
+            'edit' => Pages\EditComprador::route('/{record}/edit'),
         ];
     }
 }

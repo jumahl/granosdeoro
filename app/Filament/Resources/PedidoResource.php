@@ -19,13 +19,16 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PedidoResource extends Resource
 {
     protected static ?string $model = Pedido::class;
+    protected static ?string $navigationGroup = 'Pedidos';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -85,6 +88,49 @@ class PedidoResource extends Resource
                         ->disabled()
                         ->dehydrateStateUsing(fn ($state) => $state ? number_format($state, 2, '.', '') : 0),
             ]);
+    }
+
+    protected function handleRecordCreation(array $data): Model
+    {
+        $pedido = Pedido::create($data);
+
+        $producto = Producto::find($data['id_producto']);
+        if ($producto) {
+            $producto->reducirCantidad($data['cantidad']);
+        }
+
+        $pedido->detallesPedidos()->create([
+            'id_producto' => $data['id_producto'],
+            'id_pedido' => $pedido->id,
+        ]);
+
+        return $pedido;
+    }
+
+    protected function handleRecordUpdate($record, array $data): Model
+    {
+        $originalCantidad = $record->cantidad;
+        $originalProducto = $record->detallesPedidos->first()->id_producto;
+
+        $record->update($data);
+
+        $producto = Producto::find($originalProducto);
+        if ($producto) {
+            $producto->cantidad_en_existencia += $originalCantidad; // Revertir cantidad original
+            $producto->save();
+        }
+
+        $nuevoProducto = Producto::find($data['id_producto']);
+        if ($nuevoProducto) {
+            $nuevoProducto->reducirCantidad($data['cantidad']); // Reducir nueva cantidad
+        }
+
+        $record->detallesPedidos()->updateOrCreate(
+            ['id_pedido' => $record->id],
+            ['id_producto' => $data['id_producto']]
+        );
+
+        return $record;
     }
 
 public static function table(Table $table): Table

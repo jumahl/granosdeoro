@@ -15,4 +15,13 @@ class Producto extends Model
     {
         return $this->hasMany(DetallePedido::class, 'id_producto');
     }
+    public function reducirCantidad($cantidad)
+    {
+        if ($this->cantidad_en_existencia >= $cantidad) {
+            $this->cantidad_en_existencia -= $cantidad;
+            $this->save();
+        } else {
+            throw new \Exception('No hay suficiente cantidad en existencia');
+        }
+    }
 }
