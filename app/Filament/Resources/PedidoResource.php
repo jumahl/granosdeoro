@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+
 class PedidoResource extends Resource
 {
     protected static ?string $model = Pedido::class;
@@ -151,7 +152,11 @@ public static function table(Table $table): Table
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('generarFactura')
+                ->label('Bill')
+                ->color('success')
+                ->url(fn (Pedido $record) => route('factura.generar', $record->id))
+                ->icon('heroicon-o-document-arrow-down'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
