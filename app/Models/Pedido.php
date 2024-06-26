@@ -14,6 +14,7 @@ class Pedido extends Model
         'fecha_pedido',
         'cantidad',
         'total',
+        'status'
     ];
 
     public function comprador()

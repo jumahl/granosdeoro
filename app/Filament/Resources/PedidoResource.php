@@ -88,6 +88,15 @@ class PedidoResource extends Resource
                         ->label('Total')
                         ->disabled()
                         ->dehydrateStateUsing(fn ($state) => $state ? number_format($state, 2, '.', '') : 0),
+                        Select::make('status')
+                        ->label('Estado del Pedido')
+                        ->options([
+                            'en proceso' => 'En Proceso',
+                            'entregado' => 'Entregado',
+                            'cancelado' => 'Cancelado',
+                        ])
+                        ->default('en proceso')
+                        ->required(),
             ]);
     }
 
@@ -145,6 +154,13 @@ public static function table(Table $table): Table
             })->sortable()->searchable(),
             TextColumn::make('cantidad')->label('Cantidad')->sortable(),
             TextColumn::make('total')->label('Total del Producto')->sortable(),
+            TextColumn::make('status')->label('Estado')->sortable()->searchable()
+            ->badge()
+            ->color(fn (Pedido $record) => match ($record->status) {
+                'en proceso' => 'warning',
+                'entregado' => 'success',
+                'cancelado' => 'danger',
+            }),
         ])
 
             ->filters([
@@ -154,9 +170,10 @@ public static function table(Table $table): Table
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('generarFactura')
                 ->label('Bill')
-                ->color('success')
+                ->color('gray')
                 ->url(fn (Pedido $record) => route('factura.generar', $record->id))
                 ->icon('heroicon-o-document-arrow-down'),
+                
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

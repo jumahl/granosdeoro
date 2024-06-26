@@ -17,6 +17,7 @@ return new class extends Migration
         $table->date('fecha_pedido');
         $table->integer('cantidad');
         $table->decimal('total', 10, 2);
+        $table->enum('status', ['en proceso', 'entregado', 'cancelado'])->default('en proceso');
         $table->timestamps();
 
         $table->foreign('id_comprador')->references('id')->on('compradors')->onDelete('cascade');

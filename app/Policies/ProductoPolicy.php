@@ -15,7 +15,7 @@ class ProductoPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('super_admin');
+        return $user->hasRole('admin');
     }
 
     /**
@@ -23,7 +23,7 @@ class ProductoPolicy
      */
     public function view(User $user, Producto $producto): bool
     {
-        return $user->hasRole('super_admin');
+        return $user->hasRole('admin');
     }
 
     /**
@@ -31,7 +31,7 @@ class ProductoPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('super_admin');
+        return $user->hasRole('admin');
     }
 
     /**
@@ -39,7 +39,7 @@ class ProductoPolicy
      */
     public function update(User $user, Producto $producto): bool
     {
-        return $user->hasRole('super_admin');
+        return $user->hasRole('admin');
     }
 
     /**
@@ -47,7 +47,7 @@ class ProductoPolicy
      */
     public function delete(User $user, Producto $producto): bool
     {
-        return $user->hasRole('super_admin');
+        return $user->hasRole('admin');
     }
 
     /**
@@ -55,7 +55,7 @@ class ProductoPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_producto');
+        return $user->hasRole('admin');
     }
 
     /**
