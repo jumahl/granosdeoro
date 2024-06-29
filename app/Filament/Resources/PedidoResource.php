@@ -55,16 +55,7 @@ class PedidoResource extends Resource
                     ->label('Producto')
                     ->options(Producto::all()->pluck('nombre', 'id'))
                     ->reactive()
-                    ->required()
-                    ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                        $producto = Producto::find($state);
-                        $cantidad = $get('cantidad');
-                        if ($producto && $cantidad) {
-                            $set('total', $producto->precio * $cantidad);
-                        } else {
-                            $set('total', 0);
-                        }
-                    }),
+                    ->required(),
                 TextInput::make('cantidad')
                         ->numeric()
                         ->minValue(1)
@@ -100,48 +91,6 @@ class PedidoResource extends Resource
             ]);
     }
 
-    protected function handleRecordCreation(array $data): Model
-    {
-        $pedido = Pedido::create($data);
-
-        $producto = Producto::find($data['id_producto']);
-        if ($producto) {
-            $producto->reducirCantidad($data['cantidad']);
-        }
-
-        $pedido->detallesPedidos()->create([
-            'id_producto' => $data['id_producto'],
-            'id_pedido' => $pedido->id,
-        ]);
-
-        return $pedido;
-    }
-
-    protected function handleRecordUpdate($record, array $data): Model
-    {
-        $originalCantidad = $record->cantidad;
-        $originalProducto = $record->detallesPedidos->first()->id_producto;
-
-        $record->update($data);
-
-        $producto = Producto::find($originalProducto);
-        if ($producto) {
-            $producto->cantidad_en_existencia += $originalCantidad; // Revertir cantidad original
-            $producto->save();
-        }
-
-        $nuevoProducto = Producto::find($data['id_producto']);
-        if ($nuevoProducto) {
-            $nuevoProducto->reducirCantidad($data['cantidad']); // Reducir nueva cantidad
-        }
-
-        $record->detallesPedidos()->updateOrCreate(
-            ['id_pedido' => $record->id],
-            ['id_producto' => $data['id_producto']]
-        );
-
-        return $record;
-    }
 
 public static function table(Table $table): Table
 {
