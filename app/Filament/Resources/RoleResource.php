@@ -2,46 +2,40 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ProductoResource\Pages;
-use App\Filament\Resources\ProductoResource\RelationManagers;
-use App\Models\Producto;
+use App\Filament\Resources\RoleResource\Pages;
+use App\Filament\Resources\RoleResource\RelationManagers;
+use App\Models\Role;
+use Faker\Provider\ar_EG\Text;
 use Filament\Forms;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ProductoResource extends Resource
-{
-    protected static ?string $model = Producto::class;
-    protected static ?string $navigationGroup = 'Administrador';
 
-    protected static ?string $navigationIcon = 'heroicon-s-plus-circle';
-    protected static ?int $navigationSort = 3;
+class RoleResource extends Resource
+{
+    protected static ?string $model = Role::class;
+    protected static ?int $navigationSort = 5;
+    protected static ?string $navigationGroup = 'Administrador';
+    protected static ?string $navigationIcon = 'heroicon-o-squares-plus';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                TextInput::make('name')
+                    ->required()
+                    ->minLength(4)
+                    ->maxLength(50)
+                    ->unique(),
+
                 //
-            TextInput::make('nombre')
-                ->required()
-                ->maxLength(100),
-            Textarea::make('descripcion')
-                ->required(),
-            TextInput::make('precio')
-                ->required()
-                ->numeric(),
-            TextInput::make('cantidad_en_existencia')
-                ->required()
-                ->numeric()
-                ->minValue(1),
             ]);
     }
 
@@ -49,11 +43,14 @@ class ProductoResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->sortable(),
+                TextColumn::make('name')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('created_at')
+                    ->dateTime('Y-m-d H:i:s'),
                 //
-                TextColumn::make('nombre')->sortable()->searchable(),
-                TextColumn::make('precio')->sortable(),
-                TextColumn::make('cantidad_en_existencia')->sortable(),
-                
             ])
             ->filters([
                 //
@@ -79,9 +76,10 @@ class ProductoResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProductos::route('/'),
-            'create' => Pages\CreateProducto::route('/create'),
-            'edit' => Pages\EditProducto::route('/{record}/edit'),
+            'index' => Pages\ListRoles::route('/'),
+            'create' => Pages\CreateRole::route('/create'),
+            'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
     }
+
 }
