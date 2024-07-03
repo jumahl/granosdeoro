@@ -24,33 +24,17 @@ class CreatePedido extends CreateRecord
             ->title('Pedido creado')
             ->body('El pedido ha sido creado exitosamente.');
     }
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        $total = 0;
-
-        if (isset($data['productos']) && is_array($data['productos'])) {
-            foreach ($data['productos'] as $producto) {
-                $productoModel = Producto::find($producto['id_producto']);
-                if ($productoModel) {
-                    $total += $producto['cantidad'] * $productoModel->precio;
-                }
-            }
-        }
-
-        $data['total'] = $total;
-
-        return $data;
-    }
-
     protected function handleRecordCreation(array $data): Pedido
     {
+    
+    
         $pedido = Pedido::create([
             'id_comprador' => $data['id_comprador'],
             'fecha_pedido' => $data['fecha_pedido'],
-            'status' => $data['status'],
             'total' => $data['total'],
+            'status' => $data['status'],
         ]);
-
+    
         if (isset($data['productos']) && is_array($data['productos'])) {
             foreach ($data['productos'] as $producto) {
                 DetallePedido::create([
@@ -60,7 +44,7 @@ class CreatePedido extends CreateRecord
                 ]);
             }
         }
-
+    
         return $pedido;
     }
 

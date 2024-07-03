@@ -24,48 +24,32 @@ class EditPedido extends EditRecord
             ->title('Pedido Editado')
             ->body('El pedido ha sido editado correctamente.');
     }
-    
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-        $total = 0;
+protected function handleRecordUpdate($record, array $data): Pedido
+{
+    $record->update([
+        'id_comprador' => $data['id_comprador'],
+        'fecha_pedido' => $data['fecha_pedido'],
+        'status' => $data['status'],
+        'total' => $data['total'],
+    ]);
 
-        if (isset($data['productos']) && is_array($data['productos'])) {
-            foreach ($data['productos'] as $producto) {
-                $productoModel = Producto::find($producto['id_producto']);
-                if ($productoModel) {
-                    $total += $producto['cantidad'] * $productoModel->precio;
-                }
-            }
+    // Eliminar los detalles existentes
+    $record->detallesPedidos()->delete();
+
+    // Crear nuevos detalles
+    if (isset($data['productos']) && is_array($data['productos'])) {
+        foreach ($data['productos'] as $producto) {
+            DetallePedido::create([
+                'pedido_id' => $record->id,
+                'producto_id' => $producto['id_producto'],
+                'cantidad' => $producto['cantidad'],
+            ]);
         }
-
-        $data['total'] = $total;
-
-        return $data;
     }
 
-    protected function handleRecordUpdate($record, array $data): Pedido
-    {
-        $record->update([
-            'id_comprador' => $data['id_comprador'],
-            'fecha_pedido' => $data['fecha_pedido'],
-            'status' => $data['status'],
-            'total' => $data['total'],
-        ]);
+    return $record;
+}
 
-        $record->detallesPedidos()->delete();
-
-        if (isset($data['productos']) && is_array($data['productos'])) {
-            foreach ($data['productos'] as $producto) {
-                DetallePedido::create([
-                    'pedido_id' => $record->id,
-                    'producto_id' => $producto['id_producto'],
-                    'cantidad' => $producto['cantidad'],
-                ]);
-            }
-        }
-
-        return $record;
-    }
 }
 
 

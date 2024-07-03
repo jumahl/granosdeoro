@@ -26,7 +26,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class PedidoResource extends Resource
 {
     protected static ?string $model = Pedido::class;
-    protected static ?string $navigationGroup = 'Pedidos';
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
     protected static ?int $navigationSort = 1;
@@ -76,19 +75,24 @@ class PedidoResource extends Resource
                         $productos = $get('productos');
                         $total = 0;
                         foreach ($productos as $index => $producto) {
-                            if (isset($producto['id_producto'])) {
+                            if (isset($producto['id_producto']) && isset($producto['cantidad'])) {
                                 $productoInfo = Producto::find($producto['id_producto']);
-                                if ($productoInfo && isset($producto['cantidad'])) {
-                                    $total += $productoInfo->precio * $producto['cantidad'];
+                                if ($productoInfo) {
+                                    $cantidad = (float) $producto['cantidad'];
+                                    $precio = (float) $productoInfo->precio;
+                                    $total += $precio * $cantidad;
                                 }
                             }
                         }
-                        $set('total', $total);
+                        $set('total', number_format($total, 2, '.', ''));
                     }),
                 TextInput::make('total')
                     ->label('Total Pedido')
-                    ->disabled()
-                    ->dehydrateStateUsing(fn ($state) => $state ? number_format($state, 2, '.', '') : 0),
+                    ->readonly()
+                    ->required()
+                    ->afterStateHydrated(function (TextInput $component, $state) {
+                        $component->state(number_format($state, 2, '.', ''));
+                    }),
                 Select::make('status')
                     ->label('Estado del Pedido')
                     ->options([
@@ -106,9 +110,10 @@ public static function table(Table $table): Table
 {
     return $table
         ->columns([
+            TextColumn::make('id')->label('No.Pedido')->sortable(),
             TextColumn::make('comprador.nombre')->label('Comprador')->sortable()->searchable(),
+            TextColumn::make('comprador.contacto')->label('Contacto')->sortable(),
             TextColumn::make('fecha_pedido')->label('Fecha del Pedido')->dateTime('d/m/y')->sortable(),
-            TextColumn::make('cantidad')->label('Cantidad')->sortable(),
             TextColumn::make('total')->label('Total del Producto')->sortable(),
             TextColumn::make('status')->label('Estado')->sortable()->searchable()
             ->badge()
