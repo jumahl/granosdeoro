@@ -97,7 +97,7 @@ public static function table(Table $table): Table
     return $table
         ->columns([
             TextColumn::make('comprador.nombre')->label('Comprador')->sortable()->searchable(),
-            TextColumn::make('fecha_pedido')->label('Fecha del Pedido')->dateTime('d/m/Y')->sortable(),
+            TextColumn::make('fecha_pedido')->label('Fecha del Pedido')->dateTime('d/m/y')->sortable(),
             TextColumn::make('detallesPedidos.id_producto')->label('Producto')->getStateUsing(function ($record) {
                 return optional($record->detallesPedidos->first()->producto)->nombre;
             })->sortable()->searchable(),
