@@ -6,11 +6,23 @@ use App\Filament\Resources\PedidoResource;
 use App\Models\DetallePedido;
 use App\Models\Producto;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditPedido extends EditRecord
 {
     protected static string $resource = PedidoResource::class;
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+    protected function getUpdatedNotification(): ?Notification
+    {
+        return Notification::make()
+            ->success()
+            ->title('Pedido Editado')
+            ->body('El pedido ha sido editado correctamente.');
+    }
 
     protected function getHeaderActions(): array
     {

@@ -4,16 +4,23 @@ namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
-
-    protected function getHeaderActions(): array
+    protected function getRedirectUrl(): string
     {
-        return [
-            Actions\DeleteAction::make(),
-        ];
+        return $this->getResource()::getUrl('index');
     }
+    protected function getUpdatedNotification(): ?Notification
+    {
+        return Notification::make()
+            ->success()
+            ->title('Usuario Editado')
+            ->body('El usuario ha sido editado correctamente.');
+    }
+
+
 }

@@ -6,11 +6,23 @@ use App\Filament\Resources\PedidoResource;
 use App\Models\DetallePedido;
 use App\Models\Producto;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreatePedido extends CreateRecord
 {
     protected static string $resource = PedidoResource::class;
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+    protected function getCreatedNotification(): ?Notification
+    {
+        return Notification::make()
+            ->success()
+            ->title('Pedido creado')
+            ->body('El pedido ha sido creado exitosamente.');
+    }
     
 
     protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model

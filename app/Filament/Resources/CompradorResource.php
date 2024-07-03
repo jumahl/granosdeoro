@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class CompradorResource extends Resource
 {
     protected static ?string $model = Comprador::class;
-    protected static ?string $navigationGroup = 'Pedidos';
+    protected static ?string $navigationGroup = 'Administrador';
     protected static ?string $navigationLabel = 'Compradores';
     
     protected static ?int $navigationSort = 2;
@@ -51,7 +51,6 @@ class CompradorResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
