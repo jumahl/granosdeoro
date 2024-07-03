@@ -12,7 +12,6 @@ class Pedido extends Model
     protected $fillable = [
         'id_comprador',
         'fecha_pedido',
-        'cantidad',
         'total',
         'status'
     ];

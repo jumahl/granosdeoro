@@ -34,8 +34,7 @@ class PedidoResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            
+            ->schema([
                 Select::make('id_comprador')
                     ->label('Comprador')
                     ->relationship('comprador', 'nombre')
@@ -51,43 +50,54 @@ class PedidoResource extends Resource
                     ]),
                 DatePicker::make('fecha_pedido')
                     ->required(),
-                Select::make('id_producto')
-                    ->label('Producto')
-                    ->options(Producto::all()->pluck('nombre', 'id'))
-                    ->reactive()
-                    ->required(),
-                TextInput::make('cantidad')
-                        ->numeric()
-                        ->minValue(1)
-                        ->maxValue(function (callable $get) {
-                            $producto = Producto::find($get('id_producto'));
-                            return $producto ? $producto->cantidad_en_existencia : null;
-                        })
-                        ->label('Cantidad')
-                        ->required()
-                        ->reactive()
-                        ->afterStateUpdated(function (callable $set, callable $get) {
-                            $producto = Producto::find($get('id_producto'));
-                            $cantidad = $get('cantidad');
-                            if ($producto && $cantidad) {
-                                $set('total', $producto->precio * $cantidad);
-                            } else {
-                                $set('total', 0);
+                Repeater::make('productos')
+                    ->relationship('detallesPedidos')
+                    ->schema([
+                        Select::make('id_producto')
+                            ->label('Producto')
+                            ->options(Producto::all()->pluck('nombre', 'id'))
+                            ->reactive()
+                            ->required(),
+                        TextInput::make('cantidad')
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(function (callable $get) {
+                                $producto = Producto::find($get('id_producto'));
+                                return $producto ? $producto->cantidad_en_existencia : null;
+                            })
+                            ->label('Cantidad')
+                            ->required()
+                            ->reactive(),
+                    ])
+                    ->minItems(1)
+                    ->label('Productos')
+                    ->columns(2)
+                    ->afterStateUpdated(function (callable $set, callable $get) {
+                        $productos = $get('productos');
+                        $total = 0;
+                        foreach ($productos as $index => $producto) {
+                            if (isset($producto['id_producto'])) {
+                                $productoInfo = Producto::find($producto['id_producto']);
+                                if ($productoInfo && isset($producto['cantidad'])) {
+                                    $total += $productoInfo->precio * $producto['cantidad'];
+                                }
                             }
-                        }),
-                    TextInput::make('total')
-                        ->label('Total')
-                        ->disabled()
-                        ->dehydrateStateUsing(fn ($state) => $state ? number_format($state, 2, '.', '') : 0),
-                        Select::make('status')
-                        ->label('Estado del Pedido')
-                        ->options([
-                            'en proceso' => 'En Proceso',
-                            'entregado' => 'Entregado',
-                            'cancelado' => 'Cancelado',
-                        ])
-                        ->default('en proceso')
-                        ->required(),
+                        }
+                        $set('total', $total);
+                    }),
+                TextInput::make('total')
+                    ->label('Total Pedido')
+                    ->disabled()
+                    ->dehydrateStateUsing(fn ($state) => $state ? number_format($state, 2, '.', '') : 0),
+                Select::make('status')
+                    ->label('Estado del Pedido')
+                    ->options([
+                        'en proceso' => 'En Proceso',
+                        'entregado' => 'Entregado',
+                        'cancelado' => 'Cancelado',
+                    ])
+                    ->default('en proceso')
+                    ->required(),
             ]);
     }
 
@@ -98,9 +108,6 @@ public static function table(Table $table): Table
         ->columns([
             TextColumn::make('comprador.nombre')->label('Comprador')->sortable()->searchable(),
             TextColumn::make('fecha_pedido')->label('Fecha del Pedido')->dateTime('d/m/y')->sortable(),
-            TextColumn::make('detallesPedidos.id_producto')->label('Producto')->getStateUsing(function ($record) {
-                return optional($record->detallesPedidos->first()->producto)->nombre;
-            })->sortable()->searchable(),
             TextColumn::make('cantidad')->label('Cantidad')->sortable(),
             TextColumn::make('total')->label('Total del Producto')->sortable(),
             TextColumn::make('status')->label('Estado')->sortable()->searchable()

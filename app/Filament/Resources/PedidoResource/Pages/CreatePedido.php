@@ -4,6 +4,7 @@ namespace App\Filament\Resources\PedidoResource\Pages;
 
 use App\Filament\Resources\PedidoResource;
 use App\Models\DetallePedido;
+use App\Models\Pedido;
 use App\Models\Producto;
 use Filament\Actions;
 use Filament\Notifications\Notification;
@@ -23,24 +24,44 @@ class CreatePedido extends CreateRecord
             ->title('Pedido creado')
             ->body('El pedido ha sido creado exitosamente.');
     }
-    
-
-    protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
+    protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Calcular el total antes de guardar
         $total = 0;
-        $producto = Producto::find($data['id_producto']);
-        $cantidad = intval($data['cantidad'] ?? 0);
-        $precio = floatval($producto->precio ?? 0);
-        $total = $precio * $cantidad;
+
+        if (isset($data['productos']) && is_array($data['productos'])) {
+            foreach ($data['productos'] as $producto) {
+                $productoModel = Producto::find($producto['id_producto']);
+                if ($productoModel) {
+                    $total += $producto['cantidad'] * $productoModel->precio;
+                }
+            }
+        }
+
         $data['total'] = $total;
 
-        $pedido = static::getModel()::create($data);
-        DetallePedido::create([
-            'id_pedido' => $pedido->id,
-            'id_producto' => $data['id_producto'],
+        return $data;
+    }
+
+    protected function handleRecordCreation(array $data): Pedido
+    {
+        $pedido = Pedido::create([
+            'id_comprador' => $data['id_comprador'],
+            'fecha_pedido' => $data['fecha_pedido'],
+            'status' => $data['status'],
+            'total' => $data['total'],
         ]);
+
+        if (isset($data['productos']) && is_array($data['productos'])) {
+            foreach ($data['productos'] as $producto) {
+                DetallePedido::create([
+                    'pedido_id' => $pedido->id,
+                    'producto_id' => $producto['id_producto'],
+                    'cantidad' => $producto['cantidad'],
+                ]);
+            }
+        }
 
         return $pedido;
     }
+
 }
