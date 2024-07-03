@@ -32,9 +32,12 @@ class ProductoResource extends Resource
                 //
             TextInput::make('nombre')
                 ->required()
-                ->maxLength(100),
+                ->maxLength(20)
+                ->disabled(fn ($record) => $record !== null),
             Textarea::make('descripcion')
-                ->required(),
+                ->required()
+                ->disabled(fn ($record) => $record !== null)
+                ->maxLength(60),
             TextInput::make('precio')
                 ->required()
                 ->numeric(),
@@ -51,6 +54,7 @@ class ProductoResource extends Resource
             ->columns([
                 //
                 TextColumn::make('nombre')->sortable()->searchable(),
+                TextColumn::make('descripcion')->sortable(),
                 TextColumn::make('precio')->sortable(),
                 TextColumn::make('cantidad_en_existencia')->sortable(),
                 
