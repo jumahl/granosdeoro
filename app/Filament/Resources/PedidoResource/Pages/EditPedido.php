@@ -30,24 +30,34 @@ class EditPedido extends EditRecord
         $record->update([
             'id_comprador' => $data['id_comprador'],
             'fecha_pedido' => $data['fecha_pedido'],
-            'status' => $data['status'],
             'total' => $data['total'],
+            'status' => $data['status'],
         ]);
-
-        $record->detallesPedidos()->delete();
-
-        if (isset($data['productos']) && is_array($data['productos'])) {
+    
+        if (isset($data['productos'])) {
+            $existingIds = [];
             foreach ($data['productos'] as $producto) {
-                DetallePedido::create([
-                    'pedido_id' => $record->id,
-                    'producto_id' => $producto['id_producto'],
-                    'cantidad' => $producto['cantidad'],
-                ]);
+                $detalle = DetallePedido::updateOrCreate(
+                    [
+                        'id_pedido' => $record->id,
+                        'id_producto' => $producto['id_producto'],
+                    ],
+                    [
+                        'cantidad' => $producto['cantidad'],
+                    ]
+                );
+                $existingIds[] = $producto['id_producto'];
             }
+    
+            // Eliminar detalles que ya no existen
+            DetallePedido::where('id_pedido', $record->id)
+                ->whereNotIn('id_producto', $existingIds)
+                ->delete();
         }
-
-        return $record;
+    
+        return $record->fresh();
     }
+    
+    
 }
-
 

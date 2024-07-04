@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PedidoResource\Pages;
 use App\Filament\Resources\PedidoResource\RelationManagers;
 use App\Models\Comprador;
+use App\Models\DetallePedido;
 use App\Models\Pedido;
 use App\Models\Producto;
 use Filament\Forms;
@@ -71,6 +72,8 @@ class PedidoResource extends Resource
                     ->minItems(1)
                     ->label('Productos')
                     ->columns(2)
+                    ->addable(false)
+                    ->deletable(false)
                     ->afterStateUpdated(function (callable $set, callable $get) {
                         $productos = $get('productos');
                         $total = 0;
@@ -105,7 +108,6 @@ class PedidoResource extends Resource
             ]);
     }
 
-
 public static function table(Table $table): Table
 {
     return $table
@@ -138,7 +140,7 @@ public static function table(Table $table): Table
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
                 ]),
             ]);
     }
