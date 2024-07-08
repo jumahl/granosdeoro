@@ -15,6 +15,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Tables\Columns\Layout\Split;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -51,10 +52,11 @@ class PedidoResource extends Resource
                     ]),
                 DatePicker::make('fecha_pedido')
                     ->required(),
-                Repeater::make('productos')
-                    ->relationship('detallesPedidos')
+                Repeater::make('detallesPedidos')
+                    ->relationship()
                     ->schema([
                         Select::make('id_producto')
+                            ->relationship('producto', 'nombre')
                             ->label('Producto')
                             ->options(Producto::all()->pluck('nombre', 'id'))
                             ->reactive()
@@ -73,16 +75,16 @@ class PedidoResource extends Resource
                     ->minItems(1)
                     ->label('Productos')
                     ->columns(2)
-                    ->addable(false)
+                    
                     ->deletable(false)
                     ->afterStateUpdated(function (callable $set, callable $get) {
-                        $productos = $get('productos');
+                        $detallesPedidos = $get('detallesPedidos') ?? [];
                         $total = 0;
-                        foreach ($productos as $index => $producto) {
-                            if (isset($producto['id_producto']) && isset($producto['cantidad'])) {
-                                $productoInfo = Producto::find($producto['id_producto']);
+                        foreach ($detallesPedidos as $index => $detallePedido) {
+                            if (isset($detallePedido['id_producto']) && isset($detallePedido['cantidad'])) {
+                                $productoInfo = Producto::find($detallePedido['id_producto']);
                                 if ($productoInfo) {
-                                    $cantidad = (float) $producto['cantidad'];
+                                    $cantidad = (float) $detallePedido['cantidad'];
                                     $precio = (float) $productoInfo->precio;
                                     $total += $precio * $cantidad;
                                 }
@@ -113,12 +115,14 @@ public static function table(Table $table): Table
 {
     return $table
         ->columns([
-            TextColumn::make('id')->label('No.Pedido')->sortable(),
-            TextColumn::make('comprador.nombre')->label('Comprador')->sortable()->searchable(),
-            TextColumn::make('comprador.contacto')->label('Contacto')->sortable(),
+            TextColumn::make('id')->label('No.Pedido')->searchable(),
+            TextColumn::make('comprador.nombre')->label('Comprador')->searchable(),
+            TextColumn::make('comprador.contacto')->label('Contacto'),
             TextColumn::make('fecha_pedido')->label('Fecha del Pedido')->dateTime('d/m/y')->sortable(),
-            TextColumn::make('total')->label('Total del Producto')->sortable(),
-            TextColumn::make('status')->label('Estado')->sortable()->searchable()
+            TextColumn::make('detallesPedidos.producto.nombre')->label('Producto'),
+            TextColumn::make('detallespedidos.cantidad')->label('Cantidad'),
+            TextColumn::make('total')->label('Total'),
+            TextColumn::make('status')->label('Estado')->searchable()
             ->badge()
             ->color(fn (Pedido $record) => match ($record->status) {
                 'en proceso' => 'warning',
@@ -126,6 +130,7 @@ public static function table(Table $table): Table
                 'cancelado' => 'danger',
             }),
         ])
+        
 
             ->filters([
                 SelectFilter::make('status')
