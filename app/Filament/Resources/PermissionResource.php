@@ -29,6 +29,7 @@ class PermissionResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->maxLength(255)
                     ->unique(),
@@ -44,20 +45,20 @@ class PermissionResource extends Resource
                 TextColumn::make('id')
                 ->sortable(),
             TextColumn::make('name')
+                ->label('Nombre')
                 ->sortable()
                 ->searchable(),
             TextColumn::make('created_at')
+                ->label('Creado')
                 ->dateTime('Y-m-d H:i:s'),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -73,8 +74,6 @@ class PermissionResource extends Resource
     {
         return [
             'index' => Pages\ListPermissions::route('/'),
-            'create' => Pages\CreatePermission::route('/create'),
-            'edit' => Pages\EditPermission::route('/{record}/edit'),
         ];
     }
 }

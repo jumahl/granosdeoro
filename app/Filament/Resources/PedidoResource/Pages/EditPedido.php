@@ -17,12 +17,12 @@ class EditPedido extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
-    protected function getUpdatedNotification(): ?Notification
+    protected function getSavedNotification(): ?Notification
     {
         return Notification::make()
             ->success()
-            ->title('Pedido Editado')
-            ->body('El pedido ha sido editado correctamente.');
+            ->title('Pedido editado')
+            ->body('El Pedido ha sido editado correctamente.');
     }
 
     protected function handleRecordUpdate($record, array $data): Pedido

@@ -15,11 +15,11 @@ class EditRole extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
-    protected function getUpdatedNotification(): ?Notification
+    protected function getSavedNotification(): ?Notification
     {
         return Notification::make()
             ->success()
-            ->title('Rol Editado')
+            ->title('Rol editado')
             ->body('El rol ha sido editado correctamente.');
     }
 }

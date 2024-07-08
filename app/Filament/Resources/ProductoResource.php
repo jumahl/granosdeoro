@@ -53,10 +53,10 @@ class ProductoResource extends Resource
         return $table
             ->columns([
                 //
-                TextColumn::make('nombre')->sortable()->searchable(),
-                TextColumn::make('descripcion')->sortable(),
-                TextColumn::make('precio')->sortable(),
-                TextColumn::make('cantidad_en_existencia')->sortable(),
+                TextColumn::make('nombre')->sortable()->searchable()->label('Nombre'),
+                TextColumn::make('descripcion')->sortable()->label('Descripción'),
+                TextColumn::make('precio')->sortable()->label('Precio'),
+                TextColumn::make('cantidad_en_existencia')->sortable()->label('Cantidad en existencia'),
                 
             ])
             ->filters([
@@ -83,8 +83,6 @@ class ProductoResource extends Resource
     {
         return [
             'index' => Pages\ListProductos::route('/'),
-            'create' => Pages\CreateProducto::route('/create'),
-            'edit' => Pages\EditProducto::route('/{record}/edit'),
         ];
     }
 }

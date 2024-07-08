@@ -19,7 +19,7 @@ class CreateComprador extends CreateRecord
     {
         return Notification::make()
             ->success()
-            ->title('Comprador creado')
-            ->body('El comprador ha sido creado exitosamente.');
+            ->title('Comprador editado')
+            ->body('El comprador ha sido editado correctamente.');
     }
 }

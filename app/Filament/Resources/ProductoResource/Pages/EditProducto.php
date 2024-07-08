@@ -16,11 +16,11 @@ class EditProducto extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 
-    protected function getUpdatedNotification(): ?Notification
+    protected function getSavedNotification(): ?Notification
     {
         return Notification::make()
             ->success()
-            ->title('Producto Editado')
+            ->title('Producto editado')
             ->body('El producto ha sido editado correctamente.');
     }
 }

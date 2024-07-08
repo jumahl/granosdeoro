@@ -30,9 +30,14 @@ class CompradorResource extends Resource
             ->schema([
                 TextInput::make('nombre')
                 ->required()
-                ->maxLength(100),
-                TextInput::make('direccion'),
-                TextInput::make('contacto'),
+                ->maxLength(60)
+                ->label('Nombre'),
+                TextInput::make('direccion')
+                ->required()
+                ->label('Dirección'),
+                TextInput::make('contacto')
+                ->required()
+                ->label('Contacto'),
                 
             ]);
     }
@@ -41,9 +46,12 @@ class CompradorResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('nombre')->sortable()->searchable(),
-                TextColumn::make('direccion')->sortable(),
-                TextColumn::make('contacto')->sortable(),
+                TextColumn::make('nombre')->sortable()->searchable()
+                ->label('Nombre'),
+                TextColumn::make('direccion')->sortable()
+                ->label('Dirección'),
+                TextColumn::make('contacto')->sortable()
+                ->label('Contacto'),
                 
             ])
             ->filters([
@@ -65,13 +73,13 @@ class CompradorResource extends Resource
             //
         ];
     }
+    
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListCompradors::route('/'),
-            'create' => Pages\CreateComprador::route('/create'),
-            'edit' => Pages\EditComprador::route('/{record}/edit'),
+
         ];
     }
 }

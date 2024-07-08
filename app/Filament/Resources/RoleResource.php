@@ -30,6 +30,7 @@ class RoleResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->minLength(4)
                     ->maxLength(50)
@@ -47,8 +48,10 @@ class RoleResource extends Resource
                     ->sortable(),
                 TextColumn::make('name')
                     ->sortable()
+                    ->label('Nombre')
                     ->searchable(),
                 TextColumn::make('created_at')
+                    ->label('Creado')
                     ->dateTime('Y-m-d H:i:s'),
                 //
             ])
@@ -76,8 +79,6 @@ class RoleResource extends Resource
     {
         return [
             'index' => Pages\ListRoles::route('/'),
-            'create' => Pages\CreateRole::route('/create'),
-            'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
     }
 

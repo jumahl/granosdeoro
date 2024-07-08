@@ -15,11 +15,11 @@ class EditComprador extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
-    protected function getUpdatedNotification(): ?Notification
+    protected function getSavedNotification(): ?Notification
     {
         return Notification::make()
             ->success()
-            ->title('Comprador Editado')
+            ->title('Comprador editado')
             ->body('El comprador ha sido editado correctamente.');
     }
 }

@@ -33,10 +33,12 @@ class UserResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('email')
                     ->email()
+                    ->label('Correo electrónico')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('password')
@@ -54,6 +56,7 @@ class UserResource extends Resource
 
                 Select::make('roles')
                 ->multiple()
+                ->label('Roles')
                 ->relationship('roles', 'name')->preload(),
                 Select::make('permissions')
                 ->multiple()
@@ -67,12 +70,15 @@ class UserResource extends Resource
             ->columns([
                 TextColumn::make('name')
                 ->sortable()
-                ->searchable(),
+                ->searchable()
+                ->label('Nombre'),
                 TextColumn::make('email')
                 ->sortable()
-                ->searchable(),
+                ->searchable()
+                ->label('Correo electrónico'),
                 TextColumn::make('roles.name')
                 ->badge()
+                ->label('Roles'),
             ])
             ->filters([
                 //
