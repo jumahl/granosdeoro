@@ -150,11 +150,6 @@ public static function table(Table $table): Table
                 ->url(fn (Pedido $record) => route('factura.generar', $record->id))
                 ->icon('heroicon-o-document-arrow-down'),
                 
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                ]),
             ]);
     }
 
