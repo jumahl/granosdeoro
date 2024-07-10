@@ -78,7 +78,7 @@ class UserResource extends Resource
                 ->label('Correo electrónico'),
                 TextColumn::make('roles.name')
                 ->badge()
-                ->label('Roles'),
+                ->label('Rol'),
             ])
             ->filters([
                 //
