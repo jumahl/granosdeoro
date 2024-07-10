@@ -3,17 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CompradorResource\Pages;
-use App\Filament\Resources\CompradorResource\RelationManagers;
 use App\Models\Comprador;
-use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CompradorResource extends Resource
 {
@@ -31,7 +27,8 @@ class CompradorResource extends Resource
                 TextInput::make('nombre')
                 ->required()
                 ->maxLength(60)
-                ->label('Nombre'),
+                ->label('Nombre')
+                ->disabled(fn ($record) => $record !== null),
                 TextInput::make('direccion')
                 ->required()
                 ->label('Dirección'),
@@ -59,11 +56,6 @@ class CompradorResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

@@ -56,10 +56,6 @@ class PermissionResource extends Resource
                 //
             ])
             ->actions([
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                ]),
             ]);
     }
 

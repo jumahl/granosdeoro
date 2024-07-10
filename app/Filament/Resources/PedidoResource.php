@@ -17,7 +17,6 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use PhpParser\Node\Stmt\Label;
 
 class PedidoResource extends Resource
 {
