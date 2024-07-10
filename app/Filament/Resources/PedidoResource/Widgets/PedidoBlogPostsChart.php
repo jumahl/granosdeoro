@@ -15,7 +15,7 @@ class PedidoBlogPostsChart extends ChartWidget
     protected function getFilters(): ?array
     {
         $currentYear = Carbon::now()->year;
-        $years = range($currentYear - 1, $currentYear);
+        $years = range($currentYear,$currentYear-3);
         return array_combine($years, $years);
     }
 
@@ -32,9 +32,9 @@ class PedidoBlogPostsChart extends ChartWidget
         $labels = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
         $datasets = [
+            $this->createDataset('Entregado', 'rgba(31, 188, 31, 0.2)', 'rgba(31, 188, 31, 1)'),
             $this->createDataset('En Proceso', 'rgba(255, 206, 86, 0.2)', 'rgba(255, 206, 86, 1)'),
-            $this->createDataset('Entregado', 'rgba(54, 162, 235, 0.2)', 'rgba(54, 162, 235, 1)'),
-            $this->createDataset('Cancelado', 'rgba(255, 99, 132, 0.2)', 'rgba(255, 99, 132, 1)'),
+            $this->createDataset('Cancelado', 'rgba(220, 20, 23, 0.2)', 'rgba(220, 20, 23, 1)'),
         ];
 
         foreach ($pedidosPorMes as $status => $pedidos) {

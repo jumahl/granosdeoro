@@ -22,7 +22,7 @@ class ProductoResource extends Resource
     protected static ?string $model = Producto::class;
     protected static ?string $navigationGroup = 'Administrador';
 
-    protected static ?string $navigationIcon = 'heroicon-s-plus-circle';
+    protected static ?string $navigationIcon = 'heroicon-s-tag';
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
