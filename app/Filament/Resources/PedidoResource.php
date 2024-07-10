@@ -107,7 +107,6 @@ public static function table(Table $table): Table
         ->columns([
             
             Split::make([
-                TextColumn::make('id')->label('No.Pedido')->searchable(),
             TextColumn::make('comprador.nombre')->label('Comprador')->searchable()->weight(FontWeight::Bold),
             TextColumn::make('comprador.contacto')->label('Contacto'),
             TextColumn::make('fecha_pedido')->label('Fecha del Pedido')->dateTime('d/m/y')->sortable(),

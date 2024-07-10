@@ -8,7 +8,7 @@ use Filament\Widgets\ChartWidget;
 
 class PedidoBlogPostsChart extends ChartWidget
 {
-    protected static ?string $heading = 'Estadísticas de Pedidos';
+    protected static ?string $heading = 'Estadísticas de Pedidos Anuales';
     
     public ?string $filter = null;
 
@@ -23,8 +23,8 @@ class PedidoBlogPostsChart extends ChartWidget
     {
         $selectedYear = $this->filter ?? Carbon::now()->year;
 
-        $pedidosPorMes = Pedido::selectRaw('MONTH(fecha_pedido) as mes, status, COUNT(*) as total')
-            ->whereYear('fecha_pedido', $selectedYear)
+        $pedidosPorMes = Pedido::selectRaw('MONTH(created_at) as mes, status, COUNT(*) as total')
+            ->whereYear('created_at', $selectedYear)
             ->groupBy('mes', 'status')
             ->get()
             ->groupBy('status');
@@ -32,8 +32,8 @@ class PedidoBlogPostsChart extends ChartWidget
         $labels = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
         $datasets = [
-            $this->createDataset('Entregado', 'rgba(31, 188, 31, 0.2)', 'rgba(31, 188, 31, 1)'),
             $this->createDataset('En Proceso', 'rgba(255, 206, 86, 0.2)', 'rgba(255, 206, 86, 1)'),
+            $this->createDataset('Entregado', 'rgba(31, 188, 31, 0.2)', 'rgba(31, 188, 31, 1)'),
             $this->createDataset('Cancelado', 'rgba(220, 20, 23, 0.2)', 'rgba(220, 20, 23, 1)'),
         ];
 
