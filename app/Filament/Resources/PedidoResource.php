@@ -3,13 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PedidoResource\Pages;
-use App\Filament\Resources\PedidoResource\RelationManagers;
-use App\Models\Comprador;
-use App\Models\DetallePedido;
 use App\Models\Pedido;
 use App\Models\Producto;
-use Filament\Forms;
-use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -17,14 +12,12 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-
+use PhpParser\Node\Stmt\Label;
 
 class PedidoResource extends Resource
 {
@@ -75,8 +68,6 @@ class PedidoResource extends Resource
                     ->minItems(1)
                     ->label('Productos')
                     ->columns(2)
-                    
-                    ->deletable(false)
                     ->afterStateUpdated(function (callable $set, callable $get) {
                         $detallesPedidos = $get('detallesPedidos') ?? [];
                         $total = 0;
@@ -115,8 +106,10 @@ public static function table(Table $table): Table
 {
     return $table
         ->columns([
-            TextColumn::make('id')->label('No.Pedido')->searchable(),
-            TextColumn::make('comprador.nombre')->label('Comprador')->searchable(),
+            
+            Split::make([
+                TextColumn::make('id')->label('No.Pedido')->searchable(),
+            TextColumn::make('comprador.nombre')->label('Comprador')->searchable()->weight(FontWeight::Bold),
             TextColumn::make('comprador.contacto')->label('Contacto'),
             TextColumn::make('fecha_pedido')->label('Fecha del Pedido')->dateTime('d/m/y')->sortable(),
             TextColumn::make('detallesPedidos.producto.nombre')->label('Producto'),
@@ -128,7 +121,15 @@ public static function table(Table $table): Table
                 'en proceso' => 'warning',
                 'entregado' => 'success',
                 'cancelado' => 'danger',
+            })
+            ->icons(fn (Pedido $record) => match ($record->status) {
+                'en proceso' => ['heroicon-o-clock'],
+                'entregado' => ['heroicon-o-check-circle'],
+                'cancelado' => ['heroicon-o-x-circle'],
             }),
+
+        ]),
+
         ])
         
 
@@ -144,7 +145,7 @@ public static function table(Table $table): Table
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('generarFactura')
-                ->label('Bill')
+                ->label('Factura')
                 ->color('gray')
                 ->url(fn (Pedido $record) => route('factura.generar', $record->id))
                 ->icon('heroicon-o-document-arrow-down'),

@@ -26,8 +26,6 @@ class CreatePedido extends CreateRecord
     }
     protected function handleRecordCreation(array $data): Pedido
     {
-    
-    
         $pedido = Pedido::create([
             'id_comprador' => $data['id_comprador'],
             'fecha_pedido' => $data['fecha_pedido'],
@@ -35,17 +33,34 @@ class CreatePedido extends CreateRecord
             'status' => $data['status'],
         ]);
     
-        if (isset($data['productos']) && is_array($data['productos'])) {
-            foreach ($data['productos'] as $producto) {
-                DetallePedido::create([
-                    'pedido_id' => $pedido->id,
-                    'producto_id' => $producto['id_producto'],
-                    'cantidad' => $producto['cantidad'],
-                ]);
+        $errores = [];
+    
+        if (isset($data['detallesPedidos']) && is_array($data['detallesPedidos'])) {
+            foreach ($data['detallesPedidos'] as $detalle) {
+                $productoModel = Producto::find($detalle['id_producto']);
+                if ($productoModel) {
+                    $cantidadReducida = $productoModel->reducirCantidad($detalle['cantidad']);
+                    if ($cantidadReducida) {
+                        DetallePedido::create([
+                            'id_pedido' => $pedido->id,
+                            'id_producto' => $detalle['id_producto'],
+                            'cantidad' => $detalle['cantidad'],
+                        ]);
+                    } else {
+                        $errores[] = "No hay suficiente cantidad en existencia para el producto: {$productoModel->nombre}. Cantidad actual: {$productoModel->cantidad_en_existencia}, Cantidad solicitada: {$detalle['cantidad']}";
+                    }
+                } else {
+                    $errores[] = "Producto no encontrado: ID {$detalle['id_producto']}";
+                }
             }
+        }
+    
+        if (!empty($errores)) {
+            // Si hay errores, eliminamos el pedido creado y lanzamos una excepción
+            $pedido->delete();
+            throw new \Exception(implode("\n", $errores));
         }
     
         return $pedido;
     }
-
 }
