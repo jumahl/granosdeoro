@@ -5,6 +5,8 @@ namespace App\Providers\Filament;
 use App\Filament\Resources\PedidoResource\Widgets\PedidoBlogPostsChart;
 use App\Filament\Resources\PedidoResource\Widgets\PedidoDiarioChart;
 use App\Filament\Resources\PedidoResource\Widgets\PedidoStatsOverview;
+use App\Filament\Resources\ProductoResource\Widgets\ProductoAnual;
+use App\Filament\Resources\ProductoResource\Widgets\ProductoDiario;
 use App\Models\Pedido;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -48,6 +50,8 @@ class AdminPanelProvider extends PanelProvider
                 PedidoStatsOverview::class,
                 PedidoDiarioChart::class,
                 PedidoBlogPostsChart::class,
+                ProductoDiario::class,
+                ProductoAnual::class,
             ])
             ->middleware([
                 EncryptCookies::class,
