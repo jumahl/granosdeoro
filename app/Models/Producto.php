@@ -20,8 +20,8 @@ class Producto extends Model
         if ($this->cantidad_en_existencia >= $cantidad) {
             $this->cantidad_en_existencia -= $cantidad;
             $this->save();
-        } else {
-            throw new \Exception('No hay suficiente cantidad en existencia');
+            return true;
         }
+        return false;
     }
 }

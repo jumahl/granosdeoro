@@ -23,13 +23,14 @@ class RoleResource extends Resource
     protected static ?string $model = Role::class;
     protected static ?int $navigationSort = 5;
     protected static ?string $navigationGroup = 'Administrador';
-    protected static ?string $navigationIcon = 'heroicon-o-squares-plus';
+    protected static ?string $navigationIcon = 'heroicon-s-squares-plus';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->minLength(4)
                     ->maxLength(50)
@@ -47,8 +48,10 @@ class RoleResource extends Resource
                     ->sortable(),
                 TextColumn::make('name')
                     ->sortable()
+                    ->label('Nombre')
                     ->searchable(),
                 TextColumn::make('created_at')
+                    ->label('Creado')
                     ->dateTime('Y-m-d H:i:s'),
                 //
             ])
@@ -57,12 +60,6 @@ class RoleResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 
@@ -77,8 +74,6 @@ class RoleResource extends Resource
     {
         return [
             'index' => Pages\ListRoles::route('/'),
-            'create' => Pages\CreateRole::route('/create'),
-            'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
     }
 

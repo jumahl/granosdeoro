@@ -4,40 +4,60 @@ namespace App\Filament\Resources\PedidoResource\Pages;
 
 use App\Filament\Resources\PedidoResource;
 use App\Models\DetallePedido;
+use App\Models\Pedido;
 use App\Models\Producto;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditPedido extends EditRecord
 {
     protected static string $resource = PedidoResource::class;
-
-    protected function getHeaderActions(): array
+    protected function getRedirectUrl(): string
     {
-        return [
-            Actions\DeleteAction::make(),
-        ];
+        return $this->getResource()::getUrl('index');
     }
-    protected function handleRecordUpdate($record, array $data): \Illuminate\Database\Eloquent\Model
+    protected function getSavedNotification(): ?Notification
     {
-        // Calcular el total antes de guardar
-        $total = 0;
-        $producto = Producto::find($data['id_producto']);
-        $cantidad = intval($data['cantidad'] ?? 0);
-        $precio = floatval($producto->precio ?? 0);
-        $total = $precio * $cantidad;
-        $data['total'] = $total;
+        return Notification::make()
+            ->success()
+            ->title('Pedido editado')
+            ->body('El Pedido ha sido editado correctamente.');
+    }
 
-        $record->update($data);
-
-        // Actualizar la relación en detalle_pedidos
-        DetallePedido::where('id_pedido', $record->id)->delete();
-
-        DetallePedido::create([
-            'id_pedido' => $record->id,
-            'id_producto' => $data['id_producto'],
+    protected function handleRecordUpdate($record, array $data): Pedido
+    {
+        $record->update([
+            'id_comprador' => $data['id_comprador'],
+            'fecha_pedido' => $data['fecha_pedido'],
+            'total' => $data['total'],
+            'status' => $data['status'],
         ]);
-
-        return $record;
+    
+        if (isset($data['productos'])) {
+            $existingIds = [];
+            foreach ($data['productos'] as $producto) {
+                $detalle = DetallePedido::updateOrCreate(
+                    [
+                        'id_pedido' => $record->id,
+                        'id_producto' => $producto['id_producto'],
+                    ],
+                    [
+                        'cantidad' => $producto['cantidad'],
+                    ]
+                );
+                $existingIds[] = $producto['id_producto'];
+            }
+    
+            // Eliminar detalles que ya no existen
+            DetallePedido::where('id_pedido', $record->id)
+                ->whereNotIn('id_producto', $existingIds)
+                ->delete();
+        }
+    
+        return $record->fresh();
     }
+    
+    
 }
+

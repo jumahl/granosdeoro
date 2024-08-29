@@ -22,7 +22,7 @@ class ProductoResource extends Resource
     protected static ?string $model = Producto::class;
     protected static ?string $navigationGroup = 'Administrador';
 
-    protected static ?string $navigationIcon = 'heroicon-s-plus-circle';
+    protected static ?string $navigationIcon = 'heroicon-s-tag';
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
@@ -32,9 +32,12 @@ class ProductoResource extends Resource
                 //
             TextInput::make('nombre')
                 ->required()
-                ->maxLength(100),
+                ->maxLength(20)
+                ->disabled(fn ($record) => $record !== null),
             Textarea::make('descripcion')
-                ->required(),
+                ->required()
+                ->disabled(fn ($record) => $record !== null)
+                ->maxLength(60),
             TextInput::make('precio')
                 ->required()
                 ->numeric(),
@@ -50,9 +53,10 @@ class ProductoResource extends Resource
         return $table
             ->columns([
                 //
-                TextColumn::make('nombre')->sortable()->searchable(),
-                TextColumn::make('precio')->sortable(),
-                TextColumn::make('cantidad_en_existencia')->sortable(),
+                TextColumn::make('nombre')->sortable()->searchable()->label('Nombre'),
+                TextColumn::make('descripcion')->sortable()->label('Descripción'),
+                TextColumn::make('precio')->sortable()->label('Precio'),
+                TextColumn::make('cantidad_en_existencia')->sortable()->label('Cantidad en existencia'),
                 
             ])
             ->filters([
@@ -60,12 +64,6 @@ class ProductoResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 
@@ -80,8 +78,6 @@ class ProductoResource extends Resource
     {
         return [
             'index' => Pages\ListProductos::route('/'),
-            'create' => Pages\CreateProducto::route('/create'),
-            'edit' => Pages\EditProducto::route('/{record}/edit'),
         ];
     }
 }

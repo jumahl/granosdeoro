@@ -9,9 +9,11 @@ class DetallePedido extends Model
 {
     use HasFactory;
 
+    protected $primaryKey ='id_pedido' ;
     protected $fillable = [
         'id_pedido',
         'id_producto',
+        'cantidad'
     ];
 
     public function pedido()

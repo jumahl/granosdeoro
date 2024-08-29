@@ -23,7 +23,8 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-plus';
+    protected static ?string $navigationLabel = 'Usuarios del sistema';
+    protected static ?string $navigationIcon = 'heroicon-s-user-group';
     protected static ?string $navigationGroup = 'Administrador';
     protected static ?int $navigationSort = 4;
 
@@ -33,22 +34,30 @@ class UserResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('email')
                     ->email()
+                    ->label('Correo electrónico')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('password')
-                ->label('Password')
-                ->required(fn ($record) => $record === null)
-                ->maxLength(255)
-                ->dehydrateStateUsing(fn ($state) => $state ? Hash::make($state) : null)
-                ->visible(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord || $livewire instanceof \Filament\Resources\Pages\EditRecord)
-                ->hidden(fn ($record) => $record !== null)
-                ->dehydrated(fn ($state) => filled($state)),
+                ->password() 
+                ->label('Contraseña')
+                ->required(fn (Page $livewire): bool => $livewire instanceof CreateRecord)
+                ->minLength(5)
+                ->same('password_confirmation')
+                ->dehydrated(fn ($state)=> filled($state))
+                ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
+                TextInput::make('password_confirmation')
+                ->password()
+                ->label('Confirmar contraseña')
+                ->required(fn (Page $livewire): bool => $livewire instanceof CreateRecord),
+
                 Select::make('roles')
                 ->multiple()
+                ->label('Roles')
                 ->relationship('roles', 'name')->preload(),
                 Select::make('permissions')
                 ->multiple()
@@ -62,22 +71,21 @@ class UserResource extends Resource
             ->columns([
                 TextColumn::make('name')
                 ->sortable()
-                ->searchable(),
+                ->searchable()
+                ->label('Nombre'),
                 TextColumn::make('email')
                 ->sortable()
-                ->searchable(),
+                ->searchable()
+                ->label('Correo electrónico'),
+                TextColumn::make('roles.name')
+                ->badge()
+                ->label('Rol'),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

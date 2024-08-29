@@ -3,39 +3,32 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PedidoResource\Pages;
-use App\Filament\Resources\PedidoResource\RelationManagers;
-use App\Models\Comprador;
 use App\Models\Pedido;
 use App\Models\Producto;
-use Filament\Forms;
-use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Tables\Columns\Layout\Split;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-
 
 class PedidoResource extends Resource
 {
     protected static ?string $model = Pedido::class;
-    protected static ?string $navigationGroup = 'Pedidos';
 
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static ?string $navigationIcon = 'heroicon-s-shopping-bag';
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            
+            ->schema([
                 Select::make('id_comprador')
                     ->label('Comprador')
                     ->relationship('comprador', 'nombre')
@@ -51,83 +44,110 @@ class PedidoResource extends Resource
                     ]),
                 DatePicker::make('fecha_pedido')
                     ->required(),
-                Select::make('id_producto')
-                    ->label('Producto')
-                    ->options(Producto::all()->pluck('nombre', 'id'))
-                    ->reactive()
-                    ->required(),
-                TextInput::make('cantidad')
-                        ->numeric()
-                        ->minValue(1)
-                        ->maxValue(function (callable $get) {
-                            $producto = Producto::find($get('id_producto'));
-                            return $producto ? $producto->cantidad_en_existencia : null;
-                        })
-                        ->label('Cantidad')
-                        ->required()
-                        ->reactive()
-                        ->afterStateUpdated(function (callable $set, callable $get) {
-                            $producto = Producto::find($get('id_producto'));
-                            $cantidad = $get('cantidad');
-                            if ($producto && $cantidad) {
-                                $set('total', $producto->precio * $cantidad);
-                            } else {
-                                $set('total', 0);
+                Repeater::make('detallesPedidos')
+                    ->relationship()
+                    ->schema([
+                        Select::make('id_producto')
+                            ->relationship('producto', 'nombre')
+                            ->label('Producto')
+                            ->options(Producto::all()->pluck('nombre', 'id'))
+                            ->reactive()
+                            ->required(),
+                        TextInput::make('cantidad')
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(function (callable $get) {
+                                $producto = Producto::find($get('id_producto'));
+                                return $producto ? $producto->cantidad_en_existencia : null;
+                            })
+                            ->label('Cantidad')
+                            ->required()
+                            ->reactive(),
+                    ])
+                    ->minItems(1)
+                    ->label('Productos')
+                    ->columns(2)
+                    ->afterStateUpdated(function (callable $set, callable $get) {
+                        $detallesPedidos = $get('detallesPedidos') ?? [];
+                        $total = 0;
+                        foreach ($detallesPedidos as $index => $detallePedido) {
+                            if (isset($detallePedido['id_producto']) && isset($detallePedido['cantidad'])) {
+                                $productoInfo = Producto::find($detallePedido['id_producto']);
+                                if ($productoInfo) {
+                                    $cantidad = (float) $detallePedido['cantidad'];
+                                    $precio = (float) $productoInfo->precio;
+                                    $total += $precio * $cantidad;
+                                }
                             }
-                        }),
-                    TextInput::make('total')
-                        ->label('Total')
-                        ->disabled()
-                        ->dehydrateStateUsing(fn ($state) => $state ? number_format($state, 2, '.', '') : 0),
-                        Select::make('status')
-                        ->label('Estado del Pedido')
-                        ->options([
-                            'en proceso' => 'En Proceso',
-                            'entregado' => 'Entregado',
-                            'cancelado' => 'Cancelado',
-                        ])
-                        ->default('en proceso')
-                        ->required(),
+                        }
+                        $set('total', number_format($total, 2, '.', ''));
+                    }),
+                TextInput::make('total')
+                    ->label('Total Pedido')
+                    ->readonly()
+                    ->required()
+                    ->afterStateHydrated(function (TextInput $component, $state) {
+                        $component->state(number_format($state, 2, '.', ''));
+                    }),
+                Select::make('status')
+                    ->label('Estado del Pedido')
+                    ->options([
+                        'en proceso' => 'En Proceso',
+                        'entregado' => 'Entregado',
+                        'cancelado' => 'Cancelado',
+                    ])
+                    ->default('en proceso')
+                    ->required(),
             ]);
     }
-
 
 public static function table(Table $table): Table
 {
     return $table
         ->columns([
-            TextColumn::make('comprador.nombre')->label('Comprador')->sortable()->searchable(),
-            TextColumn::make('fecha_pedido')->label('Fecha del Pedido')->dateTime('d/m/Y')->sortable(),
-            TextColumn::make('detallesPedidos.id_producto')->label('Producto')->getStateUsing(function ($record) {
-                return optional($record->detallesPedidos->first()->producto)->nombre;
-            })->sortable()->searchable(),
-            TextColumn::make('cantidad')->label('Cantidad')->sortable(),
-            TextColumn::make('total')->label('Total del Producto')->sortable(),
-            TextColumn::make('status')->label('Estado')->sortable()->searchable()
+            
+            Split::make([
+            TextColumn::make('comprador.nombre')->label('Comprador')->searchable()->weight(FontWeight::Bold),
+            TextColumn::make('comprador.contacto')->label('Contacto'),
+            TextColumn::make('fecha_pedido')->label('Fecha del Pedido')->dateTime('d/m/y')->sortable(),
+            TextColumn::make('detallesPedidos.producto.nombre')->label('Producto'),
+            TextColumn::make('detallespedidos.cantidad')->label('Cantidad'),
+            TextColumn::make('total')->label('Total'),
+            TextColumn::make('status')->label('Estado')->searchable()
             ->badge()
             ->color(fn (Pedido $record) => match ($record->status) {
                 'en proceso' => 'warning',
                 'entregado' => 'success',
                 'cancelado' => 'danger',
+            })
+            ->icons(fn (Pedido $record) => match ($record->status) {
+                'en proceso' => ['heroicon-o-clock'],
+                'entregado' => ['heroicon-o-check-circle'],
+                'cancelado' => ['heroicon-o-x-circle'],
             }),
+
+        ]),
+
         ])
+        
 
             ->filters([
-                //
+                SelectFilter::make('status')
+                ->label('Estado del Pedido')
+                ->options([
+                    'en proceso' => 'En Proceso',
+                    'entregado' => 'Entregado',
+                    'cancelado' => 'Cancelado',
+                ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('generarFactura')
-                ->label('Bill')
+                ->label('Factura')
                 ->color('gray')
                 ->url(fn (Pedido $record) => route('factura.generar', $record->id))
                 ->icon('heroicon-o-document-arrow-down'),
                 
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

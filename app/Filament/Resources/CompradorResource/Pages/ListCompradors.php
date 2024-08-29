@@ -13,7 +13,8 @@ class ListCompradors extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->label('Agregar Comprador'),
         ];
     }
 }
