@@ -3,7 +3,7 @@ version: "3.8"
 services:
     mysql:
         image: mysql:latest
-        container_name: mysql-container
+        container_name: mysql-container-test
         environment:
             MYSQL_ROOT_PASSWORD: 12345
             MYSQL_DATABASE: granos_de_oro_test # Asegúrate de que la base de datos exista
@@ -12,10 +12,9 @@ services:
         ports:
             - "3306:3306"
 
-
     laravel:
         image: gdo:latest # Tu imagen de Laravel
-        container_name: laravel-container
+        container_name: laravel-container-test
         ports:
             - "8000:8000" # Cambia el puerto si es necesario
         depends_on:
@@ -24,7 +23,7 @@ services:
             DB_CONNECTION: mysql
             DB_HOST: mysql
             DB_PORT: 3306
-            DB_DATABASE: granos_de_oro
+            DB_DATABASE: granos_de_oro_test
             DB_USERNAME: root
             DB_PASSWORD: 12345
 
