@@ -6,11 +6,12 @@ services:
         container_name: mysql-container
         environment:
             MYSQL_ROOT_PASSWORD: 12345
-            MYSQL_DATABASE: granos_de_oro # Asegúrate de que la base de datos exista
+            MYSQL_DATABASE: granos_de_oro_test # Asegúrate de que la base de datos exista
         volumes:
             - mysql-data:/var/lib/mysql
         ports:
             - "3306:3306"
+
 
     laravel:
         image: gdo:latest # Tu imagen de Laravel
