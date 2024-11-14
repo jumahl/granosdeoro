@@ -1,4 +1,9 @@
-/.phpunit.cache
+/.phpunit.result.cache
+phpunit.xml
+composer.lock
+.env
+admin
+phpunit.xml.back
 /node_modules
 /public/build
 /public/hot
@@ -15,3 +20,4 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/public/js/filament/forms/components/file-upload.js
