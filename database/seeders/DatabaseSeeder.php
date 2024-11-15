@@ -11,12 +11,21 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+
         // Crear permisos para Comprador
         $permissions = [
             'view_any_comprador',
             'view_comprador',
             'create_comprador',
             'update_comprador',
+
+        // Crear permisos
+        $permissions = [
+            'view_any_producto',
+            'view_producto',
+            'create_producto',
+            'update_producto',
+
         ];
 
         foreach ($permissions as $permission) {
