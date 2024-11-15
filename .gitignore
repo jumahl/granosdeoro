@@ -1,9 +1,10 @@
+/.phpunit.cache
 /.phpunit.result.cache
 phpunit.xml
+phpunit.xml.back
 composer.lock
 .env
-admin
-phpunit.xml.back
+/public/js/filament/forms/components/file-upload.js
 /node_modules
 /public/build
 /public/hot

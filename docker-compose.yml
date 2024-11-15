@@ -13,7 +13,8 @@ services:
             - "3306:3306"
 
     laravel:
-        image: gdo:latest # Tu imagen de Laravel
+
+        image: gdo_test:latest # Tu imagen de Laravel
         container_name: laravel-container-test
         ports:
             - "8000:8000" # Cambia el puerto si es necesario
