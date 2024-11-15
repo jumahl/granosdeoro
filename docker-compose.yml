@@ -12,6 +12,7 @@ services:
 
     laravel:
 
+
         image: gdo-test:latest # Tu imagen de Laravel
 
         container_name: laravel-container-test
