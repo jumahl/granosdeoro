@@ -13,7 +13,8 @@ class DetallePedido extends Model
     protected $fillable = [
         'id_pedido',
         'id_producto',
-        'cantidad'
+        'cantidad',
+        'precio_unitario'
     ];
 
     public function pedido()
@@ -25,4 +26,5 @@ class DetallePedido extends Model
     {
         return $this->belongsTo(Producto::class, 'id_producto');
     }
+    
 }

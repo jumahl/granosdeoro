@@ -25,6 +25,31 @@ class EditPedido extends EditRecord
             ->body('El Pedido ha sido editado correctamente.');
     }
 
+    protected function fillForm(): void
+{
+    $this->callHook('beforeFill');
+
+    $data = $this->record->attributesToArray();
+    
+    // Cargar explícitamente los detalles del pedido
+    $data['detallesPedidos'] = $this->record->detallesPedidos()
+        ->with('producto')
+        ->get()
+        ->map(function ($detalle) {
+            return [
+                'id_producto' => $detalle->id_producto,
+                'cantidad' => $detalle->cantidad,
+                'precio_unitario' => $detalle->precio_unitario,
+            ];
+        })
+        ->toArray();
+
+    $this->form->fill($data);
+
+    $this->callHook('afterFill');
+}
+
+
     protected function handleRecordUpdate($record, array $data): Pedido
     {
         $record->update([
@@ -34,22 +59,23 @@ class EditPedido extends EditRecord
             'status' => $data['status'],
         ]);
     
-        if (isset($data['productos'])) {
+        if (isset($data['detallesPedidos'])) {
             $existingIds = [];
-            foreach ($data['productos'] as $producto) {
-                $detalle = DetallePedido::updateOrCreate(
+            foreach ($data['detallesPedidos'] as $detalle) {
+                $producto = Producto::find($detalle['id_producto']);
+                $detallePedido = DetallePedido::updateOrCreate(
                     [
                         'id_pedido' => $record->id,
-                        'id_producto' => $producto['id_producto'],
+                        'id_producto' => $detalle['id_producto'],
                     ],
                     [
-                        'cantidad' => $producto['cantidad'],
+                        'cantidad' => $detalle['cantidad'],
+                        'precio_unitario' => $producto->precio
                     ]
                 );
-                $existingIds[] = $producto['id_producto'];
+                $existingIds[] = $detalle['id_producto'];
             }
     
-            // Eliminar detalles que ya no existen
             DetallePedido::where('id_pedido', $record->id)
                 ->whereNotIn('id_producto', $existingIds)
                 ->delete();

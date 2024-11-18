@@ -52,7 +52,15 @@ class PedidoResource extends Resource
                             ->label('Producto')
                             ->options(Producto::all()->pluck('nombre', 'id'))
                             ->reactive()
-                            ->required(),
+                            ->required()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    $producto = Producto::find($state);
+                                    if ($producto) {
+                                        $set('precio_unitario', $producto->precio);
+                                    }
+                                }
+                            }),
                         TextInput::make('cantidad')
                             ->numeric()
                             ->minValue(1)
@@ -63,9 +71,17 @@ class PedidoResource extends Resource
                             ->label('Cantidad')
                             ->required()
                             ->reactive(),
+                        TextInput::make('precio_unitario')
+                            ->label('Precio Unitario')
+                            ->disabled()
+                            ->dehydrated(true)
+                            ->numeric()
+                            ->required(),
                     ])
                     ->minItems(1)
+                    ->maxItems(50)
                     ->label('Productos')
+                    ->relationship('detallesPedidos')
                     ->columns(2)
                     ->afterStateUpdated(function (callable $set, callable $get) {
                         $detallesPedidos = $get('detallesPedidos') ?? [];
