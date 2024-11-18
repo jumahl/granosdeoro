@@ -3,61 +3,55 @@
 namespace App\Filament\Resources\PedidoResource\Pages;
 
 use App\Filament\Resources\PedidoResource;
-use App\Models\DetallePedido;
-use App\Models\Pedido;
-use App\Models\Producto;
-use Filament\Actions;
+use App\Models\Pedido; // Importar la clase Pedido
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditPedido extends EditRecord
 {
+    // Especifica el recurso al que pertenece esta página
     protected static string $resource = PedidoResource::class;
+
+    // Propiedades para los datos del pedido
+    public $id_comprador;
+    public $fecha_pedido;
+    public $total;
+    public $status;
+
+    // Define la URL a la que se redirige después de editar un pedido
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
     }
+
+    // Define la notificación que se muestra después de editar un pedido
     protected function getSavedNotification(): ?Notification
     {
         return Notification::make()
-            ->success()
-            ->title('Pedido editado')
-            ->body('El Pedido ha sido editado correctamente.');
+            ->success() // Define el tipo de notificación como éxito
+            ->title('Pedido editado') // Título de la notificación
+            ->body('El pedido ha sido editado correctamente.'); // Cuerpo de la notificación
     }
 
-    protected function handleRecordUpdate($record, array $data): Pedido
+    // Método para guardar los cambios en un pedido
+    public function save(bool $shouldRedirect = true, bool $shouldSendSavedNotification = true): void
     {
-        $record->update([
-            'id_comprador' => $data['id_comprador'],
-            'fecha_pedido' => $data['fecha_pedido'],
-            'total' => $data['total'],
-            'status' => $data['status'],
+        // Lógica para actualizar el pedido en la base de datos
+        $this->record->update([
+            'id_comprador' => $this->id_comprador,
+            'fecha_pedido' => $this->fecha_pedido,
+            'total' => $this->total,
+            'status' => $this->status,
         ]);
-    
-        if (isset($data['productos'])) {
-            $existingIds = [];
-            foreach ($data['productos'] as $producto) {
-                $detalle = DetallePedido::updateOrCreate(
-                    [
-                        'id_pedido' => $record->id,
-                        'id_producto' => $producto['id_producto'],
-                    ],
-                    [
-                        'cantidad' => $producto['cantidad'],
-                    ]
-                );
-                $existingIds[] = $producto['id_producto'];
-            }
-    
-            // Eliminar detalles que ya no existen
-            DetallePedido::where('id_pedido', $record->id)
-                ->whereNotIn('id_producto', $existingIds)
-                ->delete();
-        }
-    
-        return $record->fresh();
-    }
-    
-    
-}
 
+        // Enviar notificación de éxito si está habilitado
+        if ($shouldSendSavedNotification) {
+            //$this->notify('success', 'El pedido ha sido editado correctamente.');
+        }
+
+        // Redirigir a la URL de redirección si está habilitado
+        if ($shouldRedirect) {
+            redirect($this->getRedirectUrl());
+        }
+    }
+}

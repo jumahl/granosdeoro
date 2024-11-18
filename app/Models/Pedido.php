@@ -13,17 +13,13 @@ class Pedido extends Model
         'id_comprador',
         'fecha_pedido',
         'total',
-        'status'
+        'status',
     ];
 
-    public function comprador()
-    {
-        return $this->belongsTo(Comprador::class, 'id_comprador');
-    }
-
+    // Define el método detallesPedidos
     public function detallesPedidos()
     {
+        // Suponiendo que tienes una relación con un modelo DetallePedido
         return $this->hasMany(DetallePedido::class, 'id_pedido');
     }
 }
-
