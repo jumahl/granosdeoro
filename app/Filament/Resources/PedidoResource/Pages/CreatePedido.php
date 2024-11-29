@@ -45,9 +45,10 @@ class CreatePedido extends CreateRecord
                             'id_pedido' => $pedido->id,
                             'id_producto' => $detalle['id_producto'],
                             'cantidad' => $detalle['cantidad'],
+                            'precio_unitario' => $productoModel->precio // Guardamos el precio actual
                         ]);
                     } else {
-                        $errores[] = "No hay suficiente cantidad en existencia para el producto: {$productoModel->nombre}. Cantidad actual: {$productoModel->cantidad_en_existencia}, Cantidad solicitada: {$detalle['cantidad']}";
+                        $errores[] = "No hay suficiente cantidad en existencia para el producto: {$productoModel->nombre}";
                     }
                 } else {
                     $errores[] = "Producto no encontrado: ID {$detalle['id_producto']}";
@@ -56,7 +57,6 @@ class CreatePedido extends CreateRecord
         }
     
         if (!empty($errores)) {
-            // Si hay errores, eliminamos el pedido creado y lanzamos una excepción
             $pedido->delete();
             throw new \Exception(implode("\n", $errores));
         }

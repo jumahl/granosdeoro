@@ -17,7 +17,7 @@ class CompradorResource extends Resource
     protected static ?string $navigationGroup = 'Administrador';
     protected static ?string $navigationLabel = 'Compradores';
     
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
     protected static ?string $navigationIcon = 'heroicon-s-identification';
 
     public static function form(Form $form): Form
