@@ -18,6 +18,14 @@ class DatabaseSeeder extends Seeder
             'view_producto',
             'create_producto',
             'update_producto',
+            'view_any_comprador',
+            'view_comprador',
+            'create_comprador',
+            'update_comprador',
+            'view_any_pedido',
+            'view_pedido',
+            'create_pedido',
+            'update_pedido',
 
         ];
 
