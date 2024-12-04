@@ -1,34 +1,50 @@
+# Usa una imagen base ligera
 FROM php:8.3.7-fpm-alpine
 
-RUN apk add --no-cache linux-headers
+# Actualiza y agrega paquetes necesarios en una sola capa
+RUN apk --no-cache add \
+    linux-headers \
+    bash \
+    git \
+    sudo \
+    openssh \
+    libxml2-dev \
+    oniguruma-dev \
+    autoconf \
+    gcc \
+    g++ \
+    make \
+    npm \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    libzip-dev \
+    ssmtp \
+    icu-dev
 
-RUN apk --no-cache upgrade && \
-    apk --no-cache add bash git sudo openssh libxml2-dev oniguruma-dev autoconf gcc g++ make npm freetype-dev libjpeg-turbo-dev libpng-dev libzip-dev ssmtp
+# Instala extensiones de PHP en una sola capa
+RUN pecl channel-update pecl.php.net && \
+    pecl install pcov swoole && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install mbstring xml pcntl gd zip sockets pdo pdo_mysql bcmath soap intl && \
+    docker-php-ext-enable mbstring xml gd zip pcov pcntl sockets bcmath pdo pdo_mysql soap swoole
 
-# Install PHP extensions
-RUN pecl channel-update pecl.php.net
-RUN pecl install pcov swoole
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg
-RUN docker-php-ext-install mbstring xml pcntl gd zip sockets pdo pdo_mysql bcmath soap
-RUN docker-php-ext-enable mbstring xml gd zip pcov pcntl sockets bcmath pdo pdo_mysql soap swoole
-
-RUN docker-php-ext-install pdo pdo_mysql sockets
-RUN apk add icu-dev
-RUN docker-php-ext-configure intl && docker-php-ext-install mysqli pdo pdo_mysql sockets intl
-RUN curl -sS https://getcomposer.org/installer | php -- \ 
+# Instala Composer
+RUN curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/local/bin --filename=composer
 
-COPY --from=composer /usr/bin/composer /usr/bin/composer
-
 WORKDIR /app
-COPY . .
 
-RUN composer install
-#RUN composer require laravel/octane
+# Copia archivos de aplicación y ejecuta composer en una sola capa
+COPY . /app
+RUN composer install --no-dev --optimize-autoloader
+
+# Copia el archivo de entorno para producción
 COPY .envDev .env
 RUN mkdir -p /app/storage/logs
 
-#RUN php artisan octane:install --server="swoole"
-
+# Exponer el puerto
 EXPOSE 8000
+
+# Comando para ejecutar la aplicación
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
