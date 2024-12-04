@@ -76,7 +76,9 @@ class RouteTest extends TestCase
      */
     public function test_admin_can_logout(): void
     {
-        $response = $this->actingAs($this->admin)->post('/gdo/logout');
+        $response = $this->actingAs($this->admin)->post('/gdo/logout', [
+            '_token' => csrf_token(),
+        ]);
         $response->assertStatus(302); // Redirección después del logout
     }
 
