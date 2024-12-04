@@ -45,7 +45,7 @@ jobs:
           echo "DB_PORT=3306" >> .env
           echo "DB_DATABASE=granos_de_oro_test" >> .env
           echo "DB_USERNAME=root" >> .env
-          echo "DB_PASSWORD=root" >> .env
+          echo "DB_PASSWORD=12345" >> .env
 
       - name: Generate application key
         run: php artisan key:generate
