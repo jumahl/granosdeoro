@@ -54,7 +54,8 @@ jobs:
         run: sleep 60 # Aumentar el tiempo de espera
 
       - name: Clear Laravel config cache
-        run: php artisan config:cache
+        run: |
+          php artisan config:cache
           php artisan cache:clear
 
       - name: Run migrations
