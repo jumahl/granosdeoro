@@ -41,7 +41,7 @@ jobs:
       - name: Configure environment variables
         run: |
           echo "DB_CONNECTION=mysql" >> .env
-          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_HOST=mysql" >> .env
           echo "DB_PORT=3306" >> .env
           echo "DB_DATABASE=granos_de_oro_test" >> .env
           echo "DB_USERNAME=root" >> .env
@@ -51,7 +51,7 @@ jobs:
         run: php artisan key:generate
 
       - name: Wait for MySQL
-        run: sleep 30
+        run: sleep 60
 
       - name: Run migrations
         run: php artisan migrate
