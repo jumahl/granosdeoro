@@ -1,4 +1,6 @@
 name: Test and Merge to Develop
+permissions:
+  contents: write
 
 on:
   push:
@@ -93,7 +95,7 @@ jobs:
           fi
 
           # Push con verificación usando token de acceso personal
-          git remote set-url origin https://CarlosR99:${{ secrets.PAT }}@github.com/jumahl/granosdeoro.git
+          git remote set-url origin https://CarlosR99:${{secrets.TOKEN}}@github.com/jumahl/granosdeoro.git
           git push origin develop || (git status && exit 1)
 
           # Recuperar cambios si existen
