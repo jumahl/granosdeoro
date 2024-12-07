@@ -1,6 +1,7 @@
 name: Test and Merge to Develop
 permissions:
   contents: write
+  pull-requests: write
 
 on:
   push:
@@ -66,37 +67,46 @@ jobs:
       - name: Run tests
         run: php artisan test
 
+      - name: Install GitHub CLI
+        if: success()
+        run: |
+          type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt update
+          sudo apt install gh -y
+
       - name: Merge to develop if tests pass
         if: success()
         run: |
+          # Configuración inicial
           git config --global user.email "jose.carlos.silva@correounivalle.edu.co"
           git config --global user.name "CarlosR99"
-          git fetch origin --prune
 
-          # Guardar cambios locales
-          git stash -u
+          # Crear rama temporal para el PR
+          BRANCH_NAME="merge-pedido-resource-$(date +%s)"
+          git checkout -b $BRANCH_NAME
 
-          # Asegurar que la rama refactor/PedidoResource existe
+          # Realizar cambios en rama temporal
           git fetch origin refactor/PedidoResource:refactor/PedidoResource || exit 1
+          git merge refactor/PedidoResource --no-ff -m "Merge refactor/PedidoResource into develop"
 
-          # Cambiar a develop
-          git checkout develop || git checkout -b develop origin/develop
+          # Push rama temporal
+          git remote set-url origin https://CarlosR99:${{ secrets.TOKEN }}@github.com/jumahl/granosdeoro.git
+          git push origin $BRANCH_NAME
 
-          # Actualizar develop
-          git pull origin develop --ff-only || git pull origin develop --no-ff
-
-          # Verificar existencia de rama antes del merge
-          if git rev-parse --verify refactor/PedidoResource > /dev/null 2>&1; then
-            # Intentar merge con strategy-option
-            git merge refactor/PedidoResource --no-ff -m "Merge refactor/PedidoResource into develop"
-          else
-            echo "La rama refactor/PedidoResource no existe"
-            exit 1
-          fi
-
-          # Push con verificación usando token de acceso personal
-          git remote set-url origin https://CarlosR99:${{secrets.TOKEN}}@github.com/jumahl/granosdeoro.git
-          git push origin develop || (git status && exit 1)
-
-          # Recuperar cambios si existen
-          git stash pop || true
+          # Crear PR usando GitHub CLI
+          gh auth login --with-token <<< "${{ secrets.TOKEN }}"
+          PR_URL=$(gh pr create \
+            --base develop \
+            --head $BRANCH_NAME \
+            --title "[Automated] Merge refactor/PedidoResource into develop" \
+            --body "Este PR requiere 2 revisiones antes de ser fusionado con develop.
+            
+            - [ ] Revisión 1
+            - [ ] Revisión 2" \
+            --label "automated-pr" \
+            --reviewer "reviewer1,reviewer2")
+            
+          echo "PR creado en: $PR_URL"
