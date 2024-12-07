@@ -70,7 +70,20 @@ jobs:
           git config --global user.email "jose.carlos.silva@correounivalle.edu.co"
           git config --global user.name "CarlosR99"
           git fetch origin --prune
-          git checkout -b develop origin/develop || git checkout -b develop
-          git pull origin develop || true
-          git merge refactor/PedidoResource
-          git push origin develop
+          # Asegurar que estamos en una rama limpia
+          git stash -u
+
+          # Intentar cambiar a develop o crearla si no existe
+          git checkout develop || git checkout -b develop origin/develop || git checkout -b develop
+
+          # Actualizar develop con cambios remotos
+          git pull origin develop --ff-only || git pull origin develop --no-ff
+
+          # Intentar merge con strategy-option
+          git merge refactor/PedidoResource --no-ff -m "Merge refactor/PedidoResource into develop"
+
+          # Push con verificación
+          git push origin develop || (git status && exit 1)
+
+          # Recuperar cambios guardados si existen
+          git stash pop || true
