@@ -70,20 +70,30 @@ jobs:
           git config --global user.email "jose.carlos.silva@correounivalle.edu.co"
           git config --global user.name "CarlosR99"
           git fetch origin --prune
-          # Asegurar que estamos en una rama limpia
+
+          # Guardar cambios locales
           git stash -u
 
-          # Intentar cambiar a develop o crearla si no existe
-          git checkout develop || git checkout -b develop origin/develop || git checkout -b develop
+          # Asegurar que la rama refactor/PedidoResource existe
+          git fetch origin refactor/PedidoResource:refactor/PedidoResource || exit 1
 
-          # Actualizar develop con cambios remotos
+          # Cambiar a develop
+          git checkout develop || git checkout -b develop origin/develop
+
+          # Actualizar develop
           git pull origin develop --ff-only || git pull origin develop --no-ff
 
-          # Intentar merge con strategy-option
-          git merge refactor/PedidoResource --no-ff -m "Merge refactor/PedidoResource into develop"
+          # Verificar existencia de rama antes del merge
+          if git rev-parse --verify refactor/PedidoResource > /dev/null 2>&1; then
+            # Intentar merge con strategy-option
+            git merge refactor/PedidoResource --no-ff -m "Merge refactor/PedidoResource into develop"
+          else
+            echo "La rama refactor/PedidoResource no existe"
+            exit 1
+          fi
 
           # Push con verificación
           git push origin develop || (git status && exit 1)
 
-          # Recuperar cambios guardados si existen
+          # Recuperar cambios si existen
           git stash pop || true
