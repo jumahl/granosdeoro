@@ -84,6 +84,10 @@ jobs:
           git config --global user.email "jose.carlos.silva@correounivalle.edu.co"
           git config --global user.name "CarlosR99"
 
+          # Guardar cambios locales
+          git add .
+          git stash save "Guardando cambios locales antes del merge"
+
           # Crear rama temporal para el PR
           BRANCH_NAME="merge-pedido-resource-$(date +%s)"
           git checkout -b $BRANCH_NAME
@@ -91,6 +95,9 @@ jobs:
           # Realizar cambios en rama temporal
           git fetch origin refactor/PedidoResource:refactor/PedidoResource || exit 1
           git merge refactor/PedidoResource --no-ff --allow-unrelated-histories -m "Merge refactor/PedidoResource into develop"
+
+          # Recuperar cambios locales si es necesario
+          git stash pop || true
 
           # Push rama temporal
           git remote set-url origin https://CarlosR99:${{ secrets.TOKEN }}@github.com/jumahl/granosdeoro.git
