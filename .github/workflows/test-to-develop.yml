@@ -69,6 +69,8 @@ jobs:
         run: |
           git config --global user.email "jose.carlos.silva@correounivalle.edu.co"
           git config --global user.name "CarlosR99"
-          git checkout develop
+          git fetch origin --prune
+          git checkout -b develop origin/develop || git checkout -b develop
+          git pull origin develop || true
           git merge refactor/PedidoResource
           git push origin develop
