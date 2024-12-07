@@ -90,7 +90,7 @@ jobs:
 
           # Realizar cambios en rama temporal
           git fetch origin refactor/PedidoResource:refactor/PedidoResource || exit 1
-          git merge refactor/PedidoResource --no-ff -m "Merge refactor/PedidoResource into develop"
+          git merge refactor/PedidoResource --no-ff --allow-unrelated-histories -m "Merge refactor/PedidoResource into develop"
 
           # Push rama temporal
           git remote set-url origin https://CarlosR99:${{ secrets.TOKEN }}@github.com/jumahl/granosdeoro.git
