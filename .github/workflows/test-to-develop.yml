@@ -67,8 +67,8 @@ jobs:
       - name: Merge to develop if tests pass
         if: success()
         run: |
-          git config --global user.email "you@example.com"
-          git config --global user.name "Your Name"
+          git config --global user.email "jose.carlos.silva@correounivalle.edu.co"
+          git config --global user.name "CarlosR99"
           git checkout develop
-          git merge test
+          git merge refactor/PedidoResource
           git push origin develop
