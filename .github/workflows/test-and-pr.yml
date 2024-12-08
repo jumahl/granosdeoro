@@ -29,6 +29,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          ref: test/develop # Aquí especificamos la rama test/develop
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
