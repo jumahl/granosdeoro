@@ -1,23 +1,20 @@
-name: Test and PR to Main
+name: Test, Deploy, and PR to Main
 
 on:
-  pull_request:
+  push:
     branches:
-      - develop
-    types:
-      - closed
+      - main
 
 jobs:
-  test-and-pr:
-    if: github.event.pull_request.merged == true
+  test-and-deploy:
     runs-on: ubuntu-latest
 
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:9
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: granos_de_oro_test
+          MYSQL_DATABASE: granos_de_oro
         ports:
           - 3306:3306
         options: >-
@@ -30,7 +27,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          ref: test/develop # Aquí especificamos la rama test/develop
+          ref: test/develop
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -72,14 +69,10 @@ jobs:
       - name: Run tests
         run: php artisan test
 
-      - name: Create Pull Request to Main
-        if: success()
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
         env:
-          GH_TOKEN: ${{ secrets.TOKEN }}
-        run: |
-          PR_URL=$(gh pr create \
-            --base main \
-            --head develop \
-            --title "Merge develop into main" \
-            --body "Automated PR created by GitHub Actions after successful tests.")
-          echo "Pull request created: $PR_URL"
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --service granosdeoro --docker
