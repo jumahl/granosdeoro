@@ -40,11 +40,13 @@ COPY . /app
 RUN composer install --no-dev --optimize-autoloader
 
 # Copia el archivo de entorno para producción
-COPY .envDev .env
+COPY .env.example .env
 RUN mkdir -p /app/storage/logs
 
 # Exponer el puerto
 EXPOSE 8000
 
-# Comando para ejecutar la aplicación
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Comando para ejecutar la 
+
+CMD ["sh", "-c", "php artisan key:generate && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000"]
+
