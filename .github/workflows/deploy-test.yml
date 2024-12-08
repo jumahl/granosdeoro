@@ -75,4 +75,4 @@ jobs:
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service granosdeoro --docker
+        run: railway up --service granosdeoro -- --docker ./Dockerfile
