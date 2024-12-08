@@ -61,6 +61,11 @@ jobs:
             sleep 2
           done
 
+      - name: Clear Laravel config cache
+        run: |
+          php artisan config:cache
+          php artisan cache:clear
+
       - name: Run migrations
         run: php artisan migrate --force
 
