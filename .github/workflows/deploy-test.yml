@@ -9,6 +9,20 @@ jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: granos_de_oro_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -27,11 +41,11 @@ jobs:
         run: |
           cp .env.example .env
           echo "DB_CONNECTION=mysql" >> .env
-          echo "DB_HOST=${{ secrets.MYSQLHOST }}" >> .env
-          echo "DB_PORT=${{ secrets.MYSQLPORT }}" >> .env
-          echo "DB_DATABASE=${{ secrets.MYSQLDATABASE }}" >> .env
-          echo "DB_USERNAME=${{ secrets.MYSQLUSER }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.MYSQLPASSWORD }}" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_DATABASE=granos_de_oro" >> .env
+          echo "DB_USERNAME=root" >> .env
+          echo "DB_PASSWORD=root" >> .env
 
       - name: Generate application key
         run: php artisan key:generate
@@ -39,9 +53,9 @@ jobs:
       - name: Wait for MySQL to be ready
         run: |
           for i in {1..30}; do
-            mysqladmin ping --host=${{ secrets.MYSQLHOST }} --user=${{ secrets.MYSQLUSER }} --password=${{ secrets.MYSQLPASSWORD }} --silent && break
+            mysqladmin ping --host=127.0.0.1 --user=root --password=root --silent && break
             echo "Waiting for MySQL..."
-            sleep 5
+            sleep 2
           done
 
       - name: Clear Laravel config cache
