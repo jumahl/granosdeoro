@@ -26,8 +26,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          ref: test/develop
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -69,9 +67,12 @@ jobs:
       - name: Run tests
         run: php artisan test
 
+      - name: Install Railway CLI
+        run: npm install -g railway
+
+      - name: Login to Railway
+        run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
+
       - name: Deploy to Railway
-        if: success() # Solo si las pruebas son exitosas
-        run: |
-          curl -fsSL https://railway.app/github-actions/setup.sh | bash # Configurar la CLI de Railway
-          railway login --token ${{ secrets.RAILWAY_TOKEN }} # Autenticación
-          railway up # Desplegar a Railway
+        if: success()
+        run: railway up
