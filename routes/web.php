@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FacturaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return redirect('/admin');
+    return redirect('/gdo');
+
 
 });
+Route::get('/factura/{pedidoId}', [FacturaController::class, 'generarFactura'])->name('factura.generar');
