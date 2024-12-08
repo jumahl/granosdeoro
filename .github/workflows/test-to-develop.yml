@@ -67,7 +67,7 @@ jobs:
       - name: Create Pull Request if tests pass
         if: success()
         env:
-          TOKEN: ${{ secrets.TOKEN }}
+          GH_TOKEN: ${{ secrets.TOKEN }}
         run: |
           PR_URL=$(gh pr create \
             --base develop \
