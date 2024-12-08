@@ -27,22 +27,26 @@ jobs:
         run: |
           cp .env.example .env
           echo "DB_CONNECTION=mysql" >> .env
-          echo "DB_HOST=${{ secrets.MYSQL_HOST }}" >> .env
-          echo "DB_PORT=${{ secrets.MYSQL_PORT }}" >> .env
-          echo "DB_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
-          echo "DB_USERNAME=${{ secrets.MYSQL_USER }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
-
-      - name: Generate application key
-        run: php artisan key:generate
+          echo "DB_HOST=${{ secrets.MYSQLHOST }}" >> .env
+          echo "DB_PORT=${{ secrets.MYSQLPORT }}" >> .env
+          echo "DB_DATABASE=${{ secrets.MYSQLDATABASE }}" >> .env
+          echo "DB_USERNAME=${{ secrets.MYSQLUSER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.MYSQLPASSWORD }}" >> .env
 
       - name: Wait for MySQL to be ready
         run: |
           for i in {1..30}; do
-            mysqladmin ping --host=${{ secrets.MYSQL_HOST }} --user=${{ secrets.MYSQL_USER }} --password=${{ secrets.MYSQL_PASSWORD }} --silent && break
+            mysqladmin ping \
+              --host=${{ secrets.MYSQLHOST }} \
+              --port=${{ secrets.MYSQLPORT }} \
+              --user=${{ secrets.MYSQLUSER }} \
+              --password=${{ secrets.MYSQLPASSWORD }} \
+              --protocol=TCP --silent && break
             echo "Waiting for MySQL..."
             sleep 5
           done
+      - name: Generate application key
+        run: php artisan key:generate
 
       - name: Clear Laravel config cache
         run: |
