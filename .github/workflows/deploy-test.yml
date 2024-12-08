@@ -11,7 +11,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:9
+        image: mysql:8
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: granos_de_oro
@@ -41,11 +41,11 @@ jobs:
         run: |
           cp .env.example .env
           echo "DB_CONNECTION=mysql" >> .env
-          echo "DB_HOST=127.0.0.1" >> .env
-          echo "DB_PORT=3306" >> .env
-          echo "DB_DATABASE=granos_de_oro" >> .env
-          echo "DB_USERNAME=root" >> .env
-          echo "DB_PASSWORD=root" >> .env
+          echo "DB_HOST=${{ secrets.MYSQL_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.MYSQL_PORT }}" >> .env
+          echo "DB_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
+          echo "DB_USERNAME=${{ secrets.MYSQL_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
 
       - name: Generate application key
         run: php artisan key:generate
@@ -75,4 +75,4 @@ jobs:
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service granosdeoro -- --docker ./Dockerfile
+        run: railway up --service granosdeoro
