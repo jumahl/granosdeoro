@@ -66,11 +66,11 @@ jobs:
       - name: Run migrations
         run: php artisan migrate --force
 
+      - name: Run tests
+        run: php artisan test
+
       - name: Install Railway CLI
         run: npm install -g @railway/cli
-
-      - name: Link to Railway project
-        run: railway link --project ${{ secrets.RAILWAY_PROJECT_ID }} # Asocia tu proyecto de Railway
 
       - name: Deploy to Railway
         env:
