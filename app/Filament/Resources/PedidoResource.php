@@ -78,6 +78,7 @@ class PedidoResource extends Resource
                             ->numeric()
                             ->required(),
                     ])
+                    ->deletable(false)
                     ->minItems(1)
                     ->maxItems(50)
                     ->label('Productos')
