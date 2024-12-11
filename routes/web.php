@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\FacturaController;
 use Illuminate\Support\Facades\Route;
 
 // Redirigir a la página de catálogo
