@@ -1,16 +1,22 @@
 <?php
 
-use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\FacturaController;
 use Illuminate\Support\Facades\Route;
 
-// Redirigir a la página de catálogo
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
 Route::get('/', function () {
-    return redirect()->route('catalog.index');
+    return redirect('/gdo');
+
+
 });
-
-// Ruta del catálogo
-Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
-
-
 Route::get('/factura/{pedidoId}', [FacturaController::class, 'generarFactura'])->name('factura.generar');
