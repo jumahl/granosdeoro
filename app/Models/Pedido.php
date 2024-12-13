@@ -7,29 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pedido extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'id_comprador',
         'fecha_pedido',
-        'total_pedido',
+        'total',
+        'status'
     ];
 
-    public static function boot()
+    public function comprador()
     {
-        parent::boot();
-
-        static::saving(function ($pedido) {
-            $pedido->total_pedido = $pedido->detallesPedidos->sum('total');
-        });
+        return $this->belongsTo(Comprador::class, 'id_comprador');
     }
 
     public function detallesPedidos()
     {
         return $this->hasMany(DetallePedido::class, 'id_pedido');
-    }
-
-    public function comprador()
-    {
-        return $this->belongsTo(Comprador::class, 'id_comprador');
     }
 }
 
